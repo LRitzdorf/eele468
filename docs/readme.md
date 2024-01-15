@@ -1,2 +1,4 @@
 # Documentation and Lab Reports
-Name lab reports lab-<#>.md, e.g. lab-7.md
+
+This directory contains laboratory reports and other documentation.
+They are named using the format lab-\<#\>-\<description\>.md, e.g. `lab-7-do-something.md`.
