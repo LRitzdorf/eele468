@@ -31,6 +31,7 @@
 
 # Executables
 bin/
+exec/
 *.exe
 *.out
 *.app
@@ -68,7 +69,6 @@ dkms.conf
 *.qar
 *.qarlog
 *.qws
-*.qpf
 *.rpt
 *.smsg
 *.sof
@@ -87,8 +87,10 @@ dkms.conf
 *.sig
 *.hb_info
 *.summary
-*srf
+*.sopcinfo
+*.srf
 c5_pin_model_dump.txt
+hps_sdram_p0_summary.csv
 synthesis/
 submodules/
 soc_system/
@@ -99,4 +101,24 @@ incremental_db/
 output_files/
 work/
 
+# ModelSim/Questa files
+[_@]*
+*.mpf
+*.mti
+*.dat
+*.dbs
+*.psm
+*.bsf
+wlf*
+*.wlf
+*.vstf
+*.ucdb
+cov*/
+simulation/
+transcript*
+sc_dpiheader.h
+vsim.dbg
+
+# draw.io XML files
+*.drawio
 
