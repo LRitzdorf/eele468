@@ -5,6 +5,7 @@
 
 - 📁 **docs**: documentation and lab reports
 - 📁 **quartus**: quartus project folder
+- 📁 **adc-controller**: custom ADC controller component
 
 
 ## Branch and Tag Naming Conventions
