@@ -49,6 +49,8 @@ set_global_assignment -name VHDL_FILE common.vhd
 set_global_assignment -name VHDL_FILE DE10Nano_System.vhd
 set_global_assignment -name SDC_FILE DE10Nano_System.sdc
 set_global_assignment -name QIP_FILE soc_system/synthesis/soc_system.qip
+set_global_assignment -name QIP_FILE shiftreg_s2p.qip
+set_global_assignment -name QIP_FILE shiftreg_p2s.qip
 
 # Pin & Location Assignments
 # ==========================
