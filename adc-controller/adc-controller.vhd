@@ -30,6 +30,9 @@ end entity;
 -- ADC controller implementation
 architecture ADC_Controller_Arch of ADC_Controller is
 
+    -- Traverser status/control signals
+    signal traverser_run, traverser_found : std_logic;
+
     signal shift_clk : std_logic;
     -- Config shift register (output) signals
     signal config_data : std_logic_vector(5 downto 0);
@@ -53,6 +56,21 @@ architecture ADC_Controller_Arch of ADC_Controller is
     end component;
 
 begin
+
+    -- Traverser component, wired to pause itself upon success
+    traverser : entity work.Vector_Traverser
+    generic map (
+        WIDTH => 16
+    )
+    port map (
+        clk    => clk,
+        reset  => reset,
+        vector => config,
+        -- Run until a 1 is found, or if traverser_run is asserted
+        run    => (not traverser_found) or traverser_run,
+        index  => samp_idx,
+        value  => traverser_found
+    );
 
     -- Shift registers
     -- Capture serial input data into parallel vector
