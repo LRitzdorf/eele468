@@ -12,12 +12,12 @@ use ieee.std_logic_unsigned.all;
 entity ADC_Controller is
     port (
         -- External interface
-        clk      : in  std_logic;
-        reset    : in  std_logic;
-        config   : in  std_logic_vector(15 downto 0);
-        sample   : out std_logic_vector(11 downto 0);
-        samp_ok  : out std_logic;
-        samp_idx : out std_logic_vector(3 downto 0);
+        clk        : in  std_logic;
+        reset      : in  std_logic;
+        config_reg : in  std_logic_vector(15 downto 0);
+        sample     : out std_logic_vector(11 downto 0);
+        sample_wr  : out std_logic;
+        sample_idx : out std_logic_vector(3 downto 0);
         -- ADC control interface
         convst : out std_logic;
         sck    : out std_logic;
@@ -31,10 +31,11 @@ end entity;
 architecture ADC_Controller_Arch of ADC_Controller is
 
     -- Traverser status/control signals
-    signal traverser_run, traverser_found : std_logic;
+    signal traverser_launch, traverser_found : std_logic;
 
+    -- Shift register signals
     signal shift_clk : std_logic;
-    -- Config shift register (output) signals
+    signal config_idx  : std_logic_vector(3 downto 0);
     signal config_data : std_logic_vector(5 downto 0);
     signal config_load : std_logic;
 
@@ -65,10 +66,10 @@ begin
     port map (
         clk    => clk,
         reset  => reset,
-        vector => config,
-        -- Run until a 1 is found, or if traverser_run is asserted
-        run    => (not traverser_found) or traverser_run,
-        index  => samp_idx,
+        vector => config_reg,
+        -- Run until a 1 is found, or if explicitly launched
+        run    => (not traverser_found) or traverser_launch,
+        index  => config_idx,
         value  => traverser_found
     );
 
