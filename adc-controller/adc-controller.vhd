@@ -72,6 +72,13 @@ begin
         value  => traverser_found
     );
 
+    -- ADC config translator component (sequential)
+    translator : entity work.Config_Translator
+    port map (
+        index  => config_idx,
+        config => config_data
+    );
+
     -- Shift registers
     -- Capture serial input data into parallel vector
     shiftreg_s2p_inst : shiftreg_s2p port map (
