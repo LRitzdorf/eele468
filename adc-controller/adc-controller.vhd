@@ -30,6 +30,18 @@ end entity;
 -- ADC controller implementation
 architecture ADC_Controller_Arch of ADC_Controller is
 
+    -- State machine signals
+    type t_state is (
+        s_search,       -- Search config register, wait for ADC conversion
+        s_communicate,  -- Communicate with ADC
+        s_store         -- Store sample reading, wait for ADC acquisition
+    );
+    signal current_state, next_state : t_state;
+    signal state_counter : natural;
+
+    -- Status flags
+    signal pause, discard_sample : boolean;
+
     -- Traverser status/control signals
     signal traverser_launch, traverser_found : std_logic;
 
@@ -57,6 +69,160 @@ architecture ADC_Controller_Arch of ADC_Controller is
     end component;
 
 begin
+
+    -- CONTROL STATE MACHINE
+
+    -- Control Flow:
+    --   - Search
+    --     - Set convst
+    --     - If pause:
+    --       - If not 1 found:
+    --         - Stay in Search
+    --       - Else 1 found:
+    --         - Clear pause
+    --     - Else not pause:
+    --       - Wait 70 cycles for searching, ADC conversion
+    --       - If not 1 found:
+    --         - Set pause
+    --     - Clear convst
+    --   - Communicate
+    --     - Translate config index to config vector
+    --     - Generate SCK @ 25 MHz
+    --     - Wait 24 cycles for communication
+    --   - Store
+    --     - If not discard_sample:
+    --       - Pulse sample_wr
+    --     - Shift config_idx -> sample_idx, pause -> discard_sample
+    --     - Wait 6 cycles for ADC acquisition
+
+    -- Transition between states and manage the in-state counter
+    state_transitioner : process (clk) is
+    begin
+        if rising_edge(clk) then
+            if reset then
+                state_counter <= 0;
+                current_state <= s_search;
+            else
+                -- Reset counter when state changes
+                if next_state = current_state then
+                    state_counter <= state_counter + 1;
+                else
+                    state_counter <= 0;
+                end if;
+                current_state <= next_state;
+            end if;
+        end if;
+    end process;
+
+    -- Determine which state occurs next
+    state_controller : process (all) is
+    begin
+        case current_state is
+
+            when s_search =>
+                if pause then
+                    -- Traverse config register until a 1 is found
+                    if traverser_found then
+                        next_state <= s_communicate;
+                    else
+                        next_state <= s_search;
+                    end if;
+                elsif state_counter >= 69 then
+                    -- Wait 70 cycles, for config register search to complete
+                    next_state <= s_search;
+                else
+                    -- We're not paused, and have waited long enough to continue
+                    next_state <= s_communicate;
+                end if;
+
+            when s_communicate =>
+                -- Wait 24 cycles (i.e. 12 cycles of the 25 MHz SCK), for ADC communication
+                if state_counter >= 23 then
+                    next_state <= s_store;
+                else
+                    next_state <= s_communicate;
+                end if;
+
+            when s_store =>
+                -- Wait 6 cycles, to fill remaining time for a 2 us sampling frequency
+                if state_counter >= 5 then
+                    next_state <= s_search;
+                else
+                    next_state <= s_store;
+                end if;
+
+        end case;
+    end process;
+
+    -- Generate control signals based on current state and progress
+    output_controller : process (clk) is
+    begin
+        if rising_edge(clk) then
+            if reset then
+                convst <= '0';
+                traverser_launch <= '0';
+                shift_clk <= '0';
+                sample_wr <= '0';
+                -- Discard first (unconfigured) sample after reset
+                discard_sample <= true;
+                -- Run after reset, duh
+                pause <= false;
+            else
+                case current_state is
+
+                    when s_search =>
+                        -- Keep CONVST high while searching, to enter nap state
+                        -- while paused and continuously searching.
+                        convst <= '1';
+                        -- Launch the traverser after entering the search state
+                        if state_counter = 0 then
+                            traverser_launch <= '1';
+                        else
+                            traverser_launch <= '0';
+                        end if;
+                        shift_clk <= '0';
+                        sample_wr <= '0';
+
+                    when s_communicate =>
+                        if state_counter = 0 then
+                            -- Pause next time if no samples are requested
+                            pause <= ?? (not traverser_found);
+                        end if;
+                        -- Generate 25 MHz clock for ADC communication
+                        shift_clk <= to_unsigned(state_counter, 1)(0);
+                        convst <= '0';
+                        traverser_launch <= '0';
+                        sample_wr <= '0';
+
+                    when s_store =>
+                        -- End-of-sample tasks
+                        if state_counter = 0 then
+                            -- Pulse the sample write signal for one clock cycle
+                            if discard_sample then
+                                sample_wr <= '0';
+                            else
+                                sample_wr <= '1';
+                            end if;
+                            -- The kind of config we just found determines the
+                            -- kind of reading we'll receive next time.
+                            sample_idx <= config_idx;
+                            -- If we need to pause next time, the following
+                            -- reading should be discarded.
+                            discard_sample <= pause;
+                        else
+                            sample_wr <= '0';
+                        end if;
+                        convst <= '0';
+                        traverser_launch <= '0';
+                        shift_clk <= '0';
+
+                end case;
+            end if;
+        end if;
+    end process;
+
+
+    -- COMPONENTS
 
     -- Traverser component, wired to pause itself upon success
     traverser : entity work.Vector_Traverser
@@ -88,6 +254,7 @@ begin
         q       => sample
     );
     -- Transmit configuration vector in serial form
+    config_load <= traverser_found;
     shiftreg_p2s_inst : shiftreg_p2s port map (
         clock    => shift_clk,
         data     => config_data,
