@@ -27,27 +27,29 @@ end entity;
 
 -- Vector traverser implementation
 architecture Vector_Traverser_Arch of Vector_Traverser is
-    signal count : natural range 0 to WIDTH-1;
 begin
 
-    -- Manage counter
     counter : process (clk) is
+        variable count : natural range 0 to WIDTH-1;
     begin
         if rising_edge(clk) then
+
+            -- Manage counter
             if reset then
-                count <= 0;
+                count := 0;
             elsif run then
                 if count >= WIDTH-1 then
-                    count <= 0;
+                    count := 0;
                 else
-                    count <= count + 1;
+                    count := count + 1;
                 end if;
             end if;
+
+            -- Output current index and bit at that index
+            index <= std_logic_vector(to_unsigned(count, index'length));
+            value <= vector(count);
+
         end if;
     end process;
-
-    -- Produce index and bit at that index
-    index <= std_logic_vector(to_unsigned(count, index'length));
-    value <= vector(count);
 
 end architecture;
