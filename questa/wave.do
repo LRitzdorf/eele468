@@ -13,18 +13,20 @@ add wave -noupdate /adc_controller_tb/dut/pause
 add wave -noupdate /adc_controller_tb/dut/discard_sample
 add wave -noupdate /adc_controller_tb/dut/traverser_launch
 add wave -noupdate /adc_controller_tb/dut/traverser_found
-add wave -noupdate -divider Outputs
-add wave -noupdate /adc_controller_tb/sample_wr
-add wave -noupdate /adc_controller_tb/dut/convst
-add wave -noupdate /adc_controller_tb/dut/sck
-add wave -noupdate /adc_controller_tb/dut/sdi
-add wave -noupdate /adc_controller_tb/dut/sdo
 add wave -noupdate -divider {Shift Registers}
 add wave -noupdate /adc_controller_tb/dut/shift_clk
 add wave -noupdate /adc_controller_tb/dut/config_idx
 add wave -noupdate -radix binary /adc_controller_tb/dut/config_data
 add wave -noupdate /adc_controller_tb/dut/config_load
+add wave -noupdate -divider {ADC Interface}
+add wave -noupdate /adc_controller_tb/dut/convst
+add wave -noupdate /adc_controller_tb/dut/sck
+add wave -noupdate /adc_controller_tb/dut/sdi
+add wave -noupdate /adc_controller_tb/dut/sdo
+add wave -noupdate -divider {Control Interface}
 add wave -noupdate /adc_controller_tb/dut/sample
+add wave -noupdate /adc_controller_tb/dut/sample_wr
+add wave -noupdate /adc_controller_tb/dut/sample_idx
 TreeUpdate [SetDefaultTree]
 configure wave -namecolwidth 216
 configure wave -valuecolwidth 73
