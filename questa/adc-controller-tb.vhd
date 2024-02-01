@@ -18,10 +18,9 @@ architecture ADC_Controller_TB_Arch of ADC_Controller_TB is
     constant CLK_PER  : time := 20 ns;
     constant DATA_PER : time := 42 ns;  -- Not just alternating 0s and 1s
 
-    signal clk, reset : std_logic;
-    signal config     : std_logic_vector(15 downto 0);
-    signal sample_wr  : std_logic;
-    signal sdo        : std_logic;
+    signal clk, reset  : std_logic;
+    signal config      : std_logic_vector(15 downto 0);
+    signal convst, sdo : std_logic;
 begin
 
     -- ADC controller DUT instance
@@ -32,10 +31,10 @@ begin
         reset      => reset,
         config_reg => config,
         sample     => open,
-        sample_wr  => sample_wr,
+        sample_wr  => open,
         sample_idx => open,
         -- ADC control interface
-        convst => open,
+        convst => convst,
         sck    => open,
         sdi    => open,
         sdo    => sdo
@@ -76,12 +75,13 @@ begin
             wait until falling_edge(clk);
         end loop;
         reset <= '0';
-        config <= b"0000_0000_1010_0101";
-        wait until falling_edge(clk);
+        wait until rising_edge(convst);
 
+        -- Test case: Normal use case
+        config <= b"0010_0000_0010_0101";
         -- Let the system run for a few cycles
-        for i in 1 to 5 loop
-            wait until falling_edge(sample_wr);
+        for i in 1 to 6 loop
+            wait until rising_edge(convst);
         end loop;
 
         finish;
