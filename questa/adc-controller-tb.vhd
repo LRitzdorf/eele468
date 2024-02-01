@@ -84,6 +84,23 @@ begin
             wait until rising_edge(convst);
         end loop;
 
+        -- Edge case: All sampling configurations requested
+        config <= b"1111_1111_1111_1111";
+        -- Let the system run for many cycles
+        for i in 1 to 18 loop
+            wait until rising_edge(convst);
+        end loop;
+
+        -- Edge case: No configurations requested
+        config <= b"0000_0000_0000_0000";
+        -- Let the system run for a few cycles
+        wait for 10 us;
+        -- Return to normal operation
+        config <= b"0000_1000_0010_0000";
+        for i in 1 to 5 loop
+            wait until rising_edge(convst);
+        end loop;
+
         finish;
     end process;
 
