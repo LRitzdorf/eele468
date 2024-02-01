@@ -129,10 +129,10 @@ begin
                     end if;
                 elsif state_counter >= 69 then
                     -- Wait 70 cycles, for config register search to complete
-                    next_state <= s_search;
+                    next_state <= s_communicate;
                 else
                     -- We're not paused, and have waited long enough to continue
-                    next_state <= s_communicate;
+                    next_state <= s_search;
                 end if;
 
             when s_communicate =>
@@ -162,6 +162,7 @@ begin
                 convst <= '0';
                 traverser_launch <= '0';
                 shift_clk <= '0';
+                config_load <= '0';
                 sample_wr <= '0';
                 -- Discard first (unconfigured) sample after reset
                 discard_sample <= true;
@@ -181,12 +182,19 @@ begin
                             traverser_launch <= '0';
                         end if;
                         shift_clk <= '0';
+                        config_load <= '0';
                         sample_wr <= '0';
 
                     when s_communicate =>
                         if state_counter = 0 then
                             -- Pause next time if no samples are requested
                             pause <= ?? (not traverser_found);
+                        end if;
+                        -- Load the configuration (output) shift register
+                        if state_counter = 1 then
+                            config_load <= '1';
+                        else
+                            config_load <= '0';
                         end if;
                         -- Generate 25 MHz clock for ADC communication
                         shift_clk <= to_unsigned(state_counter, 1)(0);
@@ -215,6 +223,7 @@ begin
                         convst <= '0';
                         traverser_launch <= '0';
                         shift_clk <= '0';
+                        config_load <= '0';
 
                 end case;
             end if;
@@ -254,7 +263,6 @@ begin
         q       => sample
     );
     -- Transmit configuration vector in serial form
-    config_load <= traverser_found;
     shiftreg_p2s_inst : shiftreg_p2s port map (
         clock    => shift_clk,
         data     => config_data,
