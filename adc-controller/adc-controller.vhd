@@ -211,14 +211,16 @@ begin
                             else
                                 sample_wr <= '1';
                             end if;
-                            -- The kind of config we just found determines the
-                            -- kind of reading we'll receive next time.
-                            sample_idx <= config_idx;
                             -- If we need to pause next time, the following
                             -- reading should be discarded.
                             discard_sample <= pause;
                         else
                             sample_wr <= '0';
+                        end if;
+                        if next_state = s_search then
+                            -- The kind of config we just found determines the
+                            -- kind of reading we'll receive next time.
+                            sample_idx <= config_idx;
                         end if;
                         convst <= '0';
                         traverser_launch <= '0';
