@@ -15,7 +15,8 @@ entity ADC_Controller_TB is
 end entity;
 
 architecture ADC_Controller_TB_Arch of ADC_Controller_TB is
-    constant CLK_PER : time := 20 ns;
+    constant CLK_PER  : time := 20 ns;
+    constant DATA_PER : time := 42 ns;  -- Not just alternating 0s and 1s
 
     signal clk, reset : std_logic;
     signal config     : std_logic_vector(15 downto 0);
@@ -50,6 +51,16 @@ begin
         end loop;
     end process;
 
+    -- Data driver
+    fake_data : process is
+    begin
+        sdo <= '0';
+        while true loop
+            wait for DATA_PER / 2;
+            sdo <= not sdo;
+        end loop;
+    end process;
+
     -- Test driver
     -- NOTE: This testbench is NOT automated! This would be rather intensive to
     -- build, and would likely be rather fragile anyway. Instead, it simply
@@ -66,7 +77,6 @@ begin
         end loop;
         reset <= '0';
         config <= b"0000_0000_1010_0101";
-        sdo <= '1';
         wait until falling_edge(clk);
 
         -- Let the system run for a few cycles
