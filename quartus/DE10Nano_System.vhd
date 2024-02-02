@@ -196,7 +196,11 @@ architecture DE10Nano_arch of DE10Nano_System is
             memory_mem_odt                      : out   std_logic;
             memory_mem_dm                       : out   std_logic_vector(3 downto 0);
             memory_oct_rzqin                    : in    std_logic;
-            reset_reset_n                       : in    std_logic
+            reset_reset_n                       : in    std_logic;
+            adc_iface_convst                    : out   std_logic;
+            adc_iface_sck                       : out   std_logic;
+            adc_iface_sdi                       : out   std_logic;
+            adc_iface_sdo                       : in    std_logic                     := 'X'
         );
     end component soc_system;
 
@@ -311,7 +315,13 @@ begin
             memory_mem_dqs_n   => HPS_DDR3_DQS_N,
             memory_mem_odt     => HPS_DDR3_ODT,
             memory_mem_dm      => HPS_DDR3_DM,
-            memory_oct_rzqin   => HPS_DDR3_RZQ
+            memory_oct_rzqin   => HPS_DDR3_RZQ,
+
+            -- ADC interface
+            adc_iface_convst => ADC_CONVST,
+            adc_iface_sck    => ADC_SCK,
+            adc_iface_sdi    => ADC_SDI,
+            adc_iface_sdo    => ADC_SDO
         );
 
     -------------------------------------------------------
