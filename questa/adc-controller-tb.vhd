@@ -75,7 +75,10 @@ begin
             wait until falling_edge(clk);
         end loop;
         reset <= '0';
+        config <= b"0000_0000_0000_0000";
         wait until rising_edge(convst);
+        -- Leave system in default state for a while
+        wait for 5 us;
 
         -- Test case: Normal use case
         config <= b"0010_0000_0010_0101";
