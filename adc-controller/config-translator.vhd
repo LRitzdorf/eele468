@@ -32,14 +32,14 @@ architecture Config_Translator_Arch of Config_Translator is
         b"111010",  -- Ch5
         b"101110",  -- Ch6
         b"111110",  -- Ch7
-        b"100010",  -- Pr0, Ch0+
-        b"110010",  -- Pr0, Ch1+
-        b"100110",  -- Pr1, Ch2+
-        b"110110",  -- Pr1, Ch3+
-        b"101010",  -- Pr2, Ch4+
-        b"111010",  -- Pr2, Ch5+
-        b"101110",  -- Pr3, Ch6+
-        b"111110"   -- Pr3, Ch7+
+        b"000010",  -- Pr0, Ch0+
+        b"010010",  -- Pr0, Ch1+
+        b"000110",  -- Pr1, Ch2+
+        b"010110",  -- Pr1, Ch3+
+        b"001010",  -- Pr2, Ch4+
+        b"011010",  -- Pr2, Ch5+
+        b"001110",  -- Pr3, Ch6+
+        b"011110"   -- Pr3, Ch7+
     );
 
 begin
