@@ -136,16 +136,16 @@ begin
                 end if;
 
             when s_communicate =>
-                -- Wait 24 cycles (i.e. 12 cycles of the 25 MHz SCK), for ADC communication
-                if state_counter >= 23 then
+                -- Wait 25 cycles (i.e. 12.5 cycles of the 25 MHz SCK), for ADC communication
+                if state_counter >= 24 then
                     next_state <= s_store;
                 else
                     next_state <= s_communicate;
                 end if;
 
             when s_store =>
-                -- Wait 6 cycles, to fill remaining time for a 2 us sampling frequency
-                if state_counter >= 5 then
+                -- Wait 5 cycles, to fill remaining time for a 2 us sampling frequency
+                if state_counter >= 4 then
                     next_state <= s_search;
                 else
                     next_state <= s_store;
@@ -159,10 +159,9 @@ begin
     begin
         if rising_edge(clk) then
             if reset then
-                convst <= '0';
                 traverser_launch <= '0';
                 shift_clk <= '0';
-                config_load <= '0';
+                sck <= '0';
                 sample_wr <= '0';
                 -- Discard first (unconfigured) sample after reset
                 discard_sample <= true;
@@ -172,9 +171,6 @@ begin
                 case current_state is
 
                     when s_search =>
-                        -- Keep CONVST high while searching, to enter nap state
-                        -- while paused and continuously searching.
-                        convst <= '1';
                         -- Launch the traverser after entering the search state
                         if state_counter = 0 then
                             traverser_launch <= '1';
@@ -182,7 +178,7 @@ begin
                             traverser_launch <= '0';
                         end if;
                         shift_clk <= '0';
-                        config_load <= '0';
+                        sck <= '0';
                         sample_wr <= '0';
 
                     when s_communicate =>
@@ -190,15 +186,9 @@ begin
                             -- Pause next time if no samples are requested
                             pause <= ?? (not traverser_found);
                         end if;
-                        -- Load the configuration (output) shift register
-                        if state_counter = 1 then
-                            config_load <= '1';
-                        else
-                            config_load <= '0';
-                        end if;
-                        -- Generate 25 MHz clock for ADC communication
-                        shift_clk <= to_unsigned(state_counter, 1)(0);
-                        convst <= '0';
+                        -- Generate 25 MHz clocks for ADC communication
+                        shift_clk <= not to_unsigned(state_counter, 1)(0);  -- Starts 20 ns sooner
+                        sck       <=     to_unsigned(state_counter, 1)(0);  -- Rises as shift_clk falls
                         traverser_launch <= '0';
                         sample_wr <= '0';
 
@@ -222,15 +212,17 @@ begin
                             -- kind of reading we'll receive next time.
                             sample_idx <= config_idx;
                         end if;
-                        convst <= '0';
                         traverser_launch <= '0';
                         shift_clk <= '0';
-                        config_load <= '0';
+                        sck <= '0';
 
                 end case;
             end if;
         end if;
     end process;
+    -- Keep CONVST high while searching, to enter nap state while paused and
+    -- continuously searching.
+    convst <= '1' when current_state = s_search else '0';
 
 
     -- COMPONENTS
@@ -271,6 +263,10 @@ begin
         load     => config_load,
         shiftout => sdi
     );
-    sck <= shift_clk;   -- Pass shift clock to ADC
+    -- Parallel load signal for P2S shift register
+    config_load <= '1'
+                   when (current_state = s_communicate)
+                   and (state_counter = 0)
+               else '0';
 
 end architecture;
