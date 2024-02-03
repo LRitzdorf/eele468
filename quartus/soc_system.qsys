@@ -201,17 +201,17 @@
  <module
    name="SystemID"
    kind="altera_avalon_sysid_qsys"
-   version="21.1"
+   version="23.1"
    enabled="1">
   <parameter name="id" value="0" />
  </module>
- <module name="clk_hps" kind="clock_source" version="21.1" enabled="1">
+ <module name="clk_hps" kind="clock_source" version="23.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
   <parameter name="inputClockFrequency" value="0" />
   <parameter name="resetSynchronousEdges" value="NONE" />
  </module>
- <module name="hps" kind="altera_hps" version="21.1" enabled="1">
+ <module name="hps" kind="altera_hps" version="23.1" enabled="1">
   <parameter name="ABSTRACT_REAL_COMPARE_TEST" value="false" />
   <parameter name="ABS_RAM_MEM_INIT_FILENAME" value="meminit" />
   <parameter name="ACV_PHY_CLK_ADD_FR_PHASE" value="0.0" />
@@ -744,7 +744,7 @@
  <module
    name="jtag_uart"
    kind="altera_avalon_jtag_uart"
-   version="21.1"
+   version="23.1"
    enabled="1">
   <parameter name="allowMultipleConnections" value="true" />
   <parameter name="avalonSpec" value="2.0" />
@@ -763,7 +763,7 @@
  <module
    name="master_0"
    kind="altera_jtag_avalon_master"
-   version="21.1"
+   version="23.1"
    enabled="1">
   <parameter name="AUTO_DEVICE" value="5CSEBA6U23I7" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
@@ -777,7 +777,7 @@
  <module
    name="onchip_memory"
    kind="altera_avalon_onchip_memory2"
-   version="21.1"
+   version="23.1"
    enabled="1">
   <parameter name="allowInSystemMemoryContentEditor" value="false" />
   <parameter name="autoInitializationFileName">$${FILENAME}_onchip_memory</parameter>
@@ -808,7 +808,7 @@
  </module>
  <connection
    kind="avalon"
-   version="21.1"
+   version="23.1"
    start="hps.h2f_axi_master"
    end="onchip_memory.s1">
   <parameter name="arbitrationPriority" value="1" />
@@ -817,7 +817,7 @@
  </connection>
  <connection
    kind="avalon"
-   version="21.1"
+   version="23.1"
    start="hps.h2f_lw_axi_master"
    end="jtag_uart.avalon_jtag_slave">
   <parameter name="arbitrationPriority" value="1" />
@@ -826,7 +826,7 @@
  </connection>
  <connection
    kind="avalon"
-   version="21.1"
+   version="23.1"
    start="hps.h2f_lw_axi_master"
    end="SystemID.control_slave">
   <parameter name="arbitrationPriority" value="1" />
@@ -835,7 +835,7 @@
  </connection>
  <connection
    kind="avalon"
-   version="21.1"
+   version="23.1"
    start="hps.h2f_lw_axi_master"
    end="ADC_Platform_0.s1">
   <parameter name="arbitrationPriority" value="1" />
@@ -844,71 +844,71 @@
  </connection>
  <connection
    kind="avalon"
-   version="21.1"
+   version="23.1"
    start="master_0.master"
    end="ADC_Platform_0.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
- <connection kind="clock" version="21.1" start="clk_hps.clk" end="SystemID.clk" />
- <connection kind="clock" version="21.1" start="clk_hps.clk" end="jtag_uart.clk" />
- <connection kind="clock" version="21.1" start="clk_hps.clk" end="master_0.clk" />
+ <connection kind="clock" version="23.1" start="clk_hps.clk" end="SystemID.clk" />
+ <connection kind="clock" version="23.1" start="clk_hps.clk" end="jtag_uart.clk" />
+ <connection kind="clock" version="23.1" start="clk_hps.clk" end="master_0.clk" />
  <connection
    kind="clock"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk"
    end="onchip_memory.clk1" />
  <connection
    kind="clock"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk"
    end="ADC_Platform_0.clock" />
  <connection
    kind="clock"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk"
    end="hps.f2h_axi_clock" />
  <connection
    kind="clock"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk"
    end="hps.h2f_axi_clock" />
  <connection
    kind="clock"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk"
    end="hps.h2f_lw_axi_clock" />
  <connection
    kind="interrupt"
-   version="21.1"
+   version="23.1"
    start="hps.f2h_irq0"
    end="jtag_uart.irq">
   <parameter name="irqNumber" value="0" />
  </connection>
  <connection
    kind="reset"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk_reset"
    end="master_0.clk_reset" />
  <connection
    kind="reset"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk_reset"
    end="SystemID.reset" />
  <connection
    kind="reset"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk_reset"
    end="jtag_uart.reset" />
  <connection
    kind="reset"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk_reset"
    end="ADC_Platform_0.reset" />
  <connection
    kind="reset"
-   version="21.1"
+   version="23.1"
    start="clk_hps.clk_reset"
    end="onchip_memory.reset1" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
