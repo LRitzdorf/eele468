@@ -45,8 +45,8 @@ derive_pll_clocks
 #       2. Select Task: "Read SDC file"  (Under netlist setup)
 #       3. Select Task: "Report Clocks"  (Under \Reports\Diagnostic)
 #**************************************************************
-set data_plane_clock    "u0|pll_using_ad1939_mclk|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk"
-set PLL_internal_clock  "u0|pll_using_ad1939_mclk|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]"
+set data_plane_clock    "u0|ad1939_subsystem|sys_clk_from_ad1939_mclk_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk"
+set PLL_internal_clock  "u0|ad1939_subsystem|sys_clk_from_ad1939_mclk_pll|altera_pll_i|general[0].gpll~FRACTIONAL_PLL|vcoph[0]"
 
 #**************************************************************
 # Set Clock Latency
@@ -143,8 +143,8 @@ set_input_delay -clock { HPS_SD_CLK } -max $maxtime_sdclk_in [get_ports {HPS_SD_
 #**************************************************************
 # Set Output Delay
 #**************************************************************
-set maxtime_lrclk_out  0.200
-set maxtime_bclk_out   0.200
+#set maxtime_lrclk_out  0.200
+#set maxtime_bclk_out   0.200
 set maxtime_mclk_out   0.200
 set maxtime_sysclk_out 0.500
 set maxtime_spiclk_out 0.200
@@ -152,8 +152,8 @@ set maxtime_i2cclk_out 0.300
 set maxtime_sdclk_out  0.200
 set maxtime_eclk_out   0.200
 
-set mintime_lrclk_out  0.200
-set mintime_bclk_out   0.200
+#set mintime_lrclk_out  0.200
+#set mintime_bclk_out   0.200
 set mintime_mclk_out   0.200
 set mintime_sysclk_out 0.200
 set mintime_spiclk_out 0.200
@@ -161,12 +161,12 @@ set mintime_i2cclk_out 0.300
 set mintime_sdclk_out  0.200
 set mintime_eclk_out   0.200
 
-set_output_delay -clock { AD1939_ADC_ABCLK } -min $mintime_bclk_out [get_ports {AD1939_DAC_DBCLK}]
-set_output_delay -clock { AD1939_ADC_ABCLK } -max $maxtime_bclk_out [get_ports {AD1939_DAC_DBCLK}]
-set_output_delay -clock { AD1939_ADC_ABCLK } -min $mintime_bclk_out [get_ports {AD1939_DAC_DSDATA1}]
-set_output_delay -clock { AD1939_ADC_ABCLK } -max $maxtime_bclk_out [get_ports {AD1939_DAC_DSDATA1}]
-set_output_delay -clock { AD1939_ADC_ALRCLK } -min $maxtime_lrclk_out [get_ports {AD1939_DAC_DLRCLK}]
-set_output_delay -clock { AD1939_ADC_ALRCLK } -max $mintime_lrclk_out [get_ports {AD1939_DAC_DLRCLK}]
+#set_output_delay -clock { AD1939_ADC_ABCLK } -min $mintime_bclk_out [get_ports {AD1939_DAC_DBCLK}]
+#set_output_delay -clock { AD1939_ADC_ABCLK } -max $maxtime_bclk_out [get_ports {AD1939_DAC_DBCLK}]
+#set_output_delay -clock { AD1939_ADC_ABCLK } -min $mintime_bclk_out [get_ports {AD1939_DAC_DSDATA1}]
+#set_output_delay -clock { AD1939_ADC_ABCLK } -max $maxtime_bclk_out [get_ports {AD1939_DAC_DSDATA1}]
+#set_output_delay -clock { AD1939_ADC_ALRCLK } -min $maxtime_lrclk_out [get_ports {AD1939_DAC_DLRCLK}]
+#set_output_delay -clock { AD1939_ADC_ALRCLK } -max $mintime_lrclk_out [get_ports {AD1939_DAC_DLRCLK}]
 set_output_delay -clock { u0|hps|fpga_interfaces|peripheral_spim0|sclk_out } -min $mintime_spiclk_out [get_ports {AD1939_spi_CCLK}]
 set_output_delay -clock { u0|hps|fpga_interfaces|peripheral_spim0|sclk_out } -max $maxtime_spiclk_out [get_ports {AD1939_spi_CCLK}]
 set_output_delay -clock { u0|hps|fpga_interfaces|peripheral_spim0|sclk_out } -min $mintime_spiclk_out [get_ports {AD1939_spi_CIN}]
@@ -288,8 +288,8 @@ set_multicycle_path -from {soc_system:u0|soc_system_hps:hps|soc_system_hps_fpga_
 # set_multicycle_path -from {soc_system:u0|soc_system_hps:hps|soc_system_hps_fpga_interfaces:fpga_interfaces|hps2fpga_light_weight~FF_*} -to {soc_system:u0|soc_system_mm_interconnect_1:mm_interconnect_1|altera_merlin_axi_master_ni:hps_h2f_lw_axi_master_agent|altera_merlin_address_alignment:align_address_to_size|address_burst[*]} -hold $soc_hold
 # set_multicycle_path -from {soc_system:u0|soc_system_hps:hps|soc_system_hps_fpga_interfaces:fpga_interfaces|hps2fpga_light_weight~FF_*} -to {soc_system:u0|soc_system_mm_interconnect_1:mm_interconnect_1|altera_merlin_axi_master_ni:hps_h2f_lw_axi_master_agent|altera_merlin_address_alignment:align_address_to_size|address_burst[*]} -setup $soc_setup
 
-set_multicycle_path -setup -from [get_clocks {AD1939_ADC_ALRCLK}]  -to  [get_clocks {u0|pll_using_ad1939_mclk|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}] 2
-set_multicycle_path -hold -from [get_clocks {AD1939_ADC_ALRCLK}]  -to  [get_clocks {u0|pll_using_ad1939_mclk|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}] 2
+set_multicycle_path -setup -from [get_clocks {AD1939_ADC_ALRCLK}]  -to  [get_clocks {u0|ad1939_subsystem|sys_clk_from_ad1939_mclk_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}] 2
+set_multicycle_path -hold -from [get_clocks {AD1939_ADC_ALRCLK}]  -to  [get_clocks {u0|ad1939_subsystem|sys_clk_from_ad1939_mclk_pll|altera_pll_i|general[0].gpll~PLL_OUTPUT_COUNTER|divclk}] 2
 
 # set_multicycle_path -from [get_clocks {FPGA_CLK1_50}] -to [get_clocks {FPGA_CLK1_50}] -setup 2
 # set_multicycle_path -from [get_clocks {FPGA_CLK1_50}] -to [get_clocks {FPGA_CLK1_50}] -hold 1
