@@ -11,7 +11,7 @@ use altera.altera_primitives_components.all;
 -- Signal Names are defined in the DE10-Nano User Manual
 -- http://de10-nano.terasic.com
 -----------------------------------------------------------
-entity DE10Nano_System is
+entity DE10Nano_AudioMini_System is
     port (
         ----------------------------------------
         --  CLOCK Inputs
@@ -188,7 +188,7 @@ entity DE10Nano_System is
 end entity;
 
 
-architecture DE10Nano_Arch of DE10Nano_System is
+architecture DE10Nano_AudioMini_Arch of DE10Nano_AudioMini_System is
 
     --------------------------------------------------------------
     -- SoC Component from Intel Platform Designer

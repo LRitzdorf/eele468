@@ -19,14 +19,14 @@
 #
 # Quartus Prime
 # Version 23.1std.0 Build 991 11/28/2023 SC Lite Edition
-# Date created = 20:53:22  February 02, 2024
+# Date created = 20:00:27  February 17, 2024
 #
 # -------------------------------------------------------------------------- #
 #
 # Notes:
 #
 # 1) The default values for assignments are stored in the file:
-#		DE10Nano_System_assignment_defaults.qdf
+#		DE10Nano_AudioMini_System_assignment_defaults.qdf
 #    If this file doesn't exist, see file:
 #		assignment_defaults.qdf
 #
@@ -45,8 +45,8 @@ set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:48:23  JUNE 27, 2018"
 set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name VHDL_FILE ../common/common.vhd
-set_global_assignment -name VHDL_FILE DE10Nano_System.vhd
-set_global_assignment -name SDC_FILE DE10Nano_System.sdc
+set_global_assignment -name VHDL_FILE DE10Nano_AudioMini_System.vhd
+set_global_assignment -name SDC_FILE DE10Nano_AudioMini_System.sdc
 set_global_assignment -name QIP_FILE soc_system/synthesis/soc_system.qip
 
 # Pin & Location Assignments
@@ -126,7 +126,7 @@ set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name SEARCH_PATH ../../component_library/serdes
 set_global_assignment -name VHDL_INPUT_VERSION VHDL_2008
 set_global_assignment -name VHDL_SHOW_LMF_MAPPING_MESSAGES OFF
-set_global_assignment -name TOP_LEVEL_ENTITY DE10Nano_System
+set_global_assignment -name TOP_LEVEL_ENTITY DE10Nano_AudioMini_System
 
 # Fitter Assignments
 # ==================
@@ -142,8 +142,8 @@ set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
-# -----------------------------
-# start ENTITY(DE10Nano_System)
+# ---------------------------------------
+# start ENTITY(DE10Nano_AudioMini_System)
 
 	# Classic Timing Assignments
 	# ==========================
@@ -534,8 +534,8 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 	# end DESIGN_PARTITION(Top)
 	# -------------------------
 
-# end ENTITY(DE10Nano_System)
-# ---------------------------
+# end ENTITY(DE10Nano_AudioMini_System)
+# -------------------------------------
 
 # -----------------------------------
 # start ENTITY(altera_avalon_sc_fifo)
