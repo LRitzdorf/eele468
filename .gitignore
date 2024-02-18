@@ -93,7 +93,6 @@ c5_pin_model_dump.txt
 hps_sdram_p0_summary.csv
 synthesis/
 submodules/
-soc_system/
 hps_isw_handoff/
 db/
 .qsys_edit/
@@ -101,6 +100,8 @@ incremental_db/
 output_files/
 work/
 greybox_tmp/
+/quartus/soc_system/
+/quartus/*_subsystem/
 
 # ModelSim/Questa files
 [_@]*
