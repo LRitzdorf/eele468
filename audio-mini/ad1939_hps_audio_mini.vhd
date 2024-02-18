@@ -130,27 +130,27 @@ architecture behavioral of ad1939_hps_audio_mini is
   -- Generated using Quartus' megafunction wizard
   -- Found in IP Library\Basic Functions\Miscellaneous\LPM_SHIFTREG
   -------------------------------------------------------------------------
-  component serial2parallel_32bits is
+  component serial2parallel_32 is
     port (
       clock   : in    std_logic;
       shiftin : in    std_logic;
       q       : out   std_logic_vector(31 downto 0)
     );
-  end component serial2parallel_32bits;
+  end component;
 
   -------------------------------------------------------------------------
   -- Intel/Altera component to convert parallel data to serial
   -- Generated using Quartus' megafunction wizard
   -- Found in IP Library\Basic Functions\Miscellaneous\LPM_SHIFTREG
   -------------------------------------------------------------------------
-  component parallel2serial_32bits is
+  component parallel2serial_32 is
     port (
       clock    : in    std_logic;
       data     : in    std_logic_vector(31 downto 0);
       load     : in    std_logic;
       shiftout : out   std_logic
     );
-  end component parallel2serial_32bits;
+  end component;
 
   -------------------------------------------------------------------------
   -- Component to delay signals
@@ -166,7 +166,7 @@ architecture behavioral of ad1939_hps_audio_mini is
       signal_input   : in    std_logic_vector(signal_width - 1  downto 0);
       signal_delayed : out   std_logic_vector(signal_width - 1  downto 0)
     );
-  end component delay_signal;
+  end component;
 
   -------------------------------------------------------------------------
   -- States to implement avalon streaming with the data-channel-valid protocol
@@ -197,7 +197,7 @@ begin
   -------------------------------------------------------------------------
   -- Convert serial data stream to parallel
   -------------------------------------------------------------------------
-  s2p_adc2 : component serial2parallel_32bits
+  s2p_adc2 : component serial2parallel_32
     port map (
       clock   => ad1939_adc_abclk,
       shiftin => ad1939_adc_asdata2,
@@ -356,7 +356,7 @@ begin
   -------------------------------------------------------------------------
   -- DAC1 left
   -------------------------------------------------------------------------
-  p2s_dac1_left : component parallel2serial_32bits
+  p2s_dac1_left : component parallel2serial_32
     port map (
       clock    => ad1939_adc_abclk,
       data     => dac1_data_left,
@@ -367,7 +367,7 @@ begin
   -------------------------------------------------------------------------
   -- DAC1 right
   -------------------------------------------------------------------------
-  p2s_dac1_right : component parallel2serial_32bits
+  p2s_dac1_right : component parallel2serial_32
     port map (
       clock    => ad1939_adc_abclk,
       data     => dac1_data_right,

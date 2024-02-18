@@ -163,8 +163,6 @@ entity DE10Nano_AudioMini_System is
         HPS_ENET_TX_DATA : out   std_logic_vector(3 downto 0);
         HPS_ENET_TX_EN   : out   std_logic;
         HPS_GSENSOR_INT  : inout std_logic;
-        HPS_I2C0_SCLK    : inout std_logic;
-        HPS_I2C0_SDAT    : inout std_logic;
         HPS_I2C1_SCLK    : inout std_logic;
         HPS_I2C1_SDAT    : inout std_logic;
         HPS_KEY          : inout std_logic;
@@ -470,7 +468,6 @@ begin
             io => TPA6130_I2C_SDA,
             o  => i2c_0_i2c_serial_sda_in
         );
-
     ubuf2 : component alt_iobuf
         port map (
             i  => '0',
@@ -487,6 +484,7 @@ begin
     LED             <= (others => '0');
     ARDUINO_IO      <= (others => 'Z');
     ARDUINO_RESET_N <= 'Z';
+    INMP621_MIC_CLK <= '0';
     ADC_CONVST      <= '0';
     ADC_SCK         <= '0';
     ADC_SDI         <= '0';
