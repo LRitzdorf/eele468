@@ -198,13 +198,13 @@ architecture DE10Nano_AudioMini_Arch of DE10Nano_AudioMini_System is
             fabric_reset_reset              : in    std_logic                     := 'X';             -- reset
             hps_and_fabric_reset_reset      : in    std_logic                     := 'X';             -- reset
             hps_clk_clk                     : in    std_logic                     := 'X';             -- clk
-            ad1939_physical_asdata2         : in    std_logic;
-            ad1939_physical_dbclk           : out   std_logic;
-            ad1939_physical_dlrclk          : out   std_logic;
-            ad1939_physical_dsdata1         : out   std_logic;
-            ad1939_physical_abclk_clk       : in    std_logic;
-            ad1939_physical_alrclk_clk      : in    std_logic;
-            ad1939_physical_mclk_clk        : in    std_logic;
+            ad1939_physical_asdata2         : in    std_logic                     := 'X';             -- asdata2
+            ad1939_physical_dbclk           : out   std_logic;                                        -- dbclk
+            ad1939_physical_dlrclk          : out   std_logic;                                        -- dlrclk
+            ad1939_physical_dsdata1         : out   std_logic;                                        -- dsdata1
+            ad1939_physical_abclk_clk       : in    std_logic                     := 'X';             -- clk
+            ad1939_physical_alrclk_clk      : in    std_logic                     := 'X';             -- clk
+            ad1939_physical_mclk_clk        : in    std_logic                     := 'X';             -- clk
             hps_i2c0_out_data               : out   std_logic;                                        -- out_data
             hps_i2c0_sda                    : in    std_logic                     := 'X';             -- sda
             hps_i2c0_clk_clk                : out   std_logic;                                        -- clk
@@ -356,13 +356,13 @@ begin
             fabric_reset_reset         => fabric_reset,
 
             -- Clock and data connections to AD1939
-            ad1939_physical_ABCLK_CLK  => AD1939_ADC_ABCLK,
-            ad1939_physical_ALRCLK_CLK => AD1939_ADC_ALRCLK,
-            ad1939_physical_MCLK_CLK   => AD1939_MCLK,
-            ad1939_physical_ASDATA2    => AD1939_ADC_ASDATA2,
-            ad1939_physical_DBCLK      => AD1939_DAC_DBCLK,
-            ad1939_physical_DLRCLK     => AD1939_DAC_DLRCLK,
-            ad1939_physical_DSDATA1    => AD1939_DAC_DSDATA1,
+            ad1939_physical_abclk_clk  => AD1939_ADC_ABCLK,
+            ad1939_physical_alrclk_clk => AD1939_ADC_ALRCLK,
+            ad1939_physical_mclk_clk   => AD1939_MCLK,
+            ad1939_physical_asdata2    => AD1939_ADC_ASDATA2,
+            ad1939_physical_dbclk      => AD1939_DAC_DBCLK,
+            ad1939_physical_dlrclk     => AD1939_DAC_DLRCLK,
+            ad1939_physical_dsdata1    => AD1939_DAC_DSDATA1,
 
             -- HPS SPI #0 connection to AD1939
             hps_spim0_txd          => AD1939_SPI_CIN,
