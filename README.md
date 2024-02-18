@@ -8,6 +8,7 @@
 - 📁 **questa**: Questa (formerly ModelSim) project folder
 - 📁 **common**: shared hardware components
 - 📁 **adc-controller**: custom ADC controller component
+- 📁 **audio-mini**: SensorLogic Audio Mini interface elements
 
 
 ## Branch and Tag Naming Conventions
