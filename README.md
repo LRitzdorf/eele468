@@ -4,7 +4,9 @@
 ## Directory Structure
 
 - 📁 **docs**: documentation and lab reports
-- 📁 **quartus**: quartus project folder
+- 📁 **quartus**: Quartus project folder
+- 📁 **questa**: Questa (formerly ModelSim) project folder
+- 📁 **common**: shared hardware components
 - 📁 **adc-controller**: custom ADC controller component
 
 
