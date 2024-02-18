@@ -4,7 +4,7 @@
 -- MODULE: LPM_SHIFTREG 
 
 -- ============================================================
--- File Name: shiftreg_s2p.vhd
+-- File Name: parallel2serial_8.vhd
 -- Megafunction Name(s):
 -- 			LPM_SHIFTREG
 --
@@ -40,19 +40,20 @@ USE ieee.std_logic_1164.all;
 LIBRARY lpm;
 USE lpm.all;
 
-ENTITY shiftreg_s2p IS
+ENTITY parallel2serial_8 IS
 	PORT
 	(
 		clock		: IN STD_LOGIC ;
-		shiftin		: IN STD_LOGIC ;
-		q		: OUT STD_LOGIC_VECTOR (11 DOWNTO 0)
+		data		: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+		load		: IN STD_LOGIC ;
+		shiftout		: OUT STD_LOGIC 
 	);
-END shiftreg_s2p;
+END parallel2serial_8;
 
 
-ARCHITECTURE SYN OF shiftreg_s2p IS
+ARCHITECTURE SYN OF parallel2serial_8 IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (11 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC ;
 
 
 
@@ -64,24 +65,26 @@ ARCHITECTURE SYN OF shiftreg_s2p IS
 	);
 	PORT (
 			clock	: IN STD_LOGIC ;
-			shiftin	: IN STD_LOGIC ;
-			q	: OUT STD_LOGIC_VECTOR (11 DOWNTO 0)
+			data	: IN STD_LOGIC_VECTOR (5 DOWNTO 0);
+			load	: IN STD_LOGIC ;
+			shiftout	: OUT STD_LOGIC 
 	);
 	END COMPONENT;
 
 BEGIN
-	q    <= sub_wire0(11 DOWNTO 0);
+	shiftout    <= sub_wire0;
 
 	LPM_SHIFTREG_component : LPM_SHIFTREG
 	GENERIC MAP (
 		lpm_direction => "LEFT",
 		lpm_type => "LPM_SHIFTREG",
-		lpm_width => 12
+		lpm_width => 6
 	)
 	PORT MAP (
 		clock => clock,
-		shiftin => shiftin,
-		q => sub_wire0
+		data => data,
+		load => load,
+		shiftout => sub_wire0
 	);
 
 
@@ -98,30 +101,32 @@ END SYN;
 -- Retrieval info: PRIVATE: CLK_EN NUMERIC "0"
 -- Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
 -- Retrieval info: PRIVATE: LeftShift NUMERIC "1"
--- Retrieval info: PRIVATE: ParallelDataInput NUMERIC "0"
--- Retrieval info: PRIVATE: Q_OUT NUMERIC "1"
+-- Retrieval info: PRIVATE: ParallelDataInput NUMERIC "1"
+-- Retrieval info: PRIVATE: Q_OUT NUMERIC "0"
 -- Retrieval info: PRIVATE: SCLR NUMERIC "0"
--- Retrieval info: PRIVATE: SLOAD NUMERIC "0"
+-- Retrieval info: PRIVATE: SLOAD NUMERIC "1"
 -- Retrieval info: PRIVATE: SSET NUMERIC "0"
 -- Retrieval info: PRIVATE: SSET_ALL1 NUMERIC "1"
 -- Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
--- Retrieval info: PRIVATE: SerialShiftInput NUMERIC "1"
--- Retrieval info: PRIVATE: SerialShiftOutput NUMERIC "0"
--- Retrieval info: PRIVATE: nBit NUMERIC "12"
+-- Retrieval info: PRIVATE: SerialShiftInput NUMERIC "0"
+-- Retrieval info: PRIVATE: SerialShiftOutput NUMERIC "1"
+-- Retrieval info: PRIVATE: nBit NUMERIC "6"
 -- Retrieval info: PRIVATE: new_diagram STRING "1"
 -- Retrieval info: LIBRARY: lpm lpm.lpm_components.all
 -- Retrieval info: CONSTANT: LPM_DIRECTION STRING "LEFT"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_SHIFTREG"
--- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "12"
+-- Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "6"
 -- Retrieval info: USED_PORT: clock 0 0 0 0 INPUT NODEFVAL "clock"
--- Retrieval info: USED_PORT: q 0 0 12 0 OUTPUT NODEFVAL "q[11..0]"
--- Retrieval info: USED_PORT: shiftin 0 0 0 0 INPUT NODEFVAL "shiftin"
+-- Retrieval info: USED_PORT: data 0 0 6 0 INPUT NODEFVAL "data[5..0]"
+-- Retrieval info: USED_PORT: load 0 0 0 0 INPUT NODEFVAL "load"
+-- Retrieval info: USED_PORT: shiftout 0 0 0 0 OUTPUT NODEFVAL "shiftout"
 -- Retrieval info: CONNECT: @clock 0 0 0 0 clock 0 0 0 0
--- Retrieval info: CONNECT: @shiftin 0 0 0 0 shiftin 0 0 0 0
--- Retrieval info: CONNECT: q 0 0 12 0 @q 0 0 12 0
--- Retrieval info: GEN_FILE: TYPE_NORMAL shiftreg_s2p.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL shiftreg_s2p.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL shiftreg_s2p.cmp TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL shiftreg_s2p.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL shiftreg_s2p_inst.vhd TRUE
+-- Retrieval info: CONNECT: @data 0 0 6 0 data 0 0 6 0
+-- Retrieval info: CONNECT: @load 0 0 0 0 load 0 0 0 0
+-- Retrieval info: CONNECT: shiftout 0 0 0 0 @shiftout 0 0 0 0
+-- Retrieval info: GEN_FILE: TYPE_NORMAL parallel2serial_8.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL parallel2serial_8.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL parallel2serial_8.cmp TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL parallel2serial_8.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL parallel2serial_8_inst.vhd TRUE
 -- Retrieval info: LIB_FILE: lpm

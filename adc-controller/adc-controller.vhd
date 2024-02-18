@@ -52,14 +52,14 @@ architecture ADC_Controller_Arch of ADC_Controller is
     signal config_load : std_logic;
 
     -- IP components
-    component shiftreg_s2p is
+    component serial2parallel_8 is
         port (
             clock   : in std_logic;
             shiftin : in std_logic;
             q       : out std_logic_vector(11 downto 0)
         );
     end component;
-    component shiftreg_p2s is
+    component parallel2serial_8 is
         port (
             clock    : in std_logic;
             data     : in std_logic_vector(5 downto 0);
@@ -251,13 +251,13 @@ begin
 
     -- Shift registers
     -- Capture serial input data into parallel vector
-    shiftreg_s2p_inst : shiftreg_s2p port map (
+    serial2parallel_8_inst : serial2parallel_8 port map (
         clock   => shift_clk,
         shiftin => sdo,
         q       => sample
     );
     -- Transmit configuration vector in serial form
-    shiftreg_p2s_inst : shiftreg_p2s port map (
+    parallel2serial_8_inst : parallel2serial_8 port map (
         clock    => shift_clk,
         data     => config_data,
         load     => config_load,
