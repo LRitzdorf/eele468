@@ -58,7 +58,7 @@
    {
       datum baseAddress
       {
-         value = "128";
+         value = "0";
          type = "String";
       }
    }
@@ -713,7 +713,7 @@
    start="hps.h2f_lw_axi_master"
    end="system_id.control_slave">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0080" />
+  <parameter name="baseAddress" value="0x0000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection

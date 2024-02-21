@@ -5,7 +5,7 @@
     model = "Terasic DE10-Nano with Audio Mini";
 
     // Altera SystemID core
-    sysid: sysid@ff200030 {
+    sysid: sysid@ff200000 {
         compatible = "altr,sysid-1.0";
         reg = <0xff200000 0x08>;
     };
