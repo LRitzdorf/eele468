@@ -3,11 +3,17 @@
 
 ## Directory Structure
 
-- 📁 **docs**: documentation and lab reports
-- 📁 **quartus**: Quartus project folder
-- 📁 **questa**: Questa (formerly ModelSim) project folder
-- 📁 **common**: shared hardware components
-- 📁 **adc-controller**: custom ADC controller component
+- General
+  - 📁 **docs**: documentation and lab reports
+- Hardware
+  - 📁 **common**: shared hardware components
+  - 📁 **adc-controller**: custom ADC controller component
+  - 📁 **audio-mini**: SensorLogic Audio Mini interface elements
+- Tooling
+  - 📁 **quartus**: Quartus project folder
+  - 📁 **questa**: Questa (formerly ModelSim) project folder
+- Software
+  - 📁 **linux**: kernel modules, device trees, and associated resources
 
 
 ## Branch and Tag Naming Conventions
