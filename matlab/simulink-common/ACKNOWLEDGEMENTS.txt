@@ -1,0 +1,6 @@
+Thanks to Tyler Kitch for playing and recording the following .wav files:
+
+singleNotesClean.wav
+bluesSampleClean.wav
+cleanSampleChords.wav
+bluesSampleCleanShort.wav
