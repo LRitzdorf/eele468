@@ -121,7 +121,7 @@
  <module
    name="ad1939_abclk_bridge"
    kind="altera_clock_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="DERIVED_CLOCK_RATE" value="0" />
   <parameter name="EXPLICIT_CLOCK_RATE" value="12288000" />
@@ -130,7 +130,7 @@
  <module
    name="ad1939_alrclk_bridge"
    kind="altera_clock_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="DERIVED_CLOCK_RATE" value="0" />
   <parameter name="EXPLICIT_CLOCK_RATE" value="192000" />
@@ -144,7 +144,7 @@
  <module
    name="reset_bridge"
    kind="altera_reset_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="ACTIVE_LOW_RESET" value="0" />
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
@@ -155,7 +155,7 @@
  <module
    name="sys_clk_bridge"
    kind="altera_clock_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="DERIVED_CLOCK_RATE" value="98304000" />
   <parameter name="EXPLICIT_CLOCK_RATE" value="98304000" />
@@ -164,7 +164,7 @@
  <module
    name="sys_clk_from_ad1939_mclk_pll"
    kind="altera_pll"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="debug_print_output" value="false" />
   <parameter name="debug_use_rbc_taf_method" value="false" />
@@ -228,7 +228,7 @@
   <parameter name="gui_cascade_outclk_index" value="0" />
   <parameter name="gui_channel_spacing" value="0.0" />
   <parameter name="gui_clk_bad" value="false" />
-  <parameter name="gui_device_speed_grade" value="1" />
+  <parameter name="gui_device_speed_grade" value="2" />
   <parameter name="gui_divide_factor_c0" value="1" />
   <parameter name="gui_divide_factor_c1" value="1" />
   <parameter name="gui_divide_factor_c10" value="1" />
@@ -370,32 +370,32 @@
  </module>
  <connection
    kind="clock"
-   version="23.1"
+   version="21.1"
    start="ad1939_abclk_bridge.out_clk"
    end="ad1939_audio_mini.abclk" />
  <connection
    kind="clock"
-   version="23.1"
+   version="21.1"
    start="ad1939_alrclk_bridge.out_clk"
    end="ad1939_audio_mini.alrclk" />
  <connection
    kind="clock"
-   version="23.1"
+   version="21.1"
    start="sys_clk_from_ad1939_mclk_pll.outclk0"
    end="sys_clk_bridge.in_clk" />
  <connection
    kind="clock"
-   version="23.1"
+   version="21.1"
    start="sys_clk_from_ad1939_mclk_pll.outclk0"
    end="ad1939_audio_mini.sys_clk" />
  <connection
    kind="reset"
-   version="23.1"
+   version="21.1"
    start="reset_bridge.out_reset"
    end="sys_clk_from_ad1939_mclk_pll.reset" />
  <connection
    kind="reset"
-   version="23.1"
+   version="21.1"
    start="reset_bridge.out_reset"
    end="ad1939_audio_mini.sys_reset" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
