@@ -10,6 +10,12 @@
         reg = <0xff200000 0x08>;
     };
 
+    // Comb filter processor
+    combfilter: combfilter@ff200010 {
+        compatible = "lr,combfilter";
+        reg = <0xff200010 0x10>;
+    };
+
     tpa613a2 {
         compatible = "dev,al-tpa613a2";
     };
