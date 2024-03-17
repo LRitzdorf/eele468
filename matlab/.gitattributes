@@ -18,3 +18,5 @@
 *.slxc binary
 *.slx binary merge=mlAutoMerge
 *.slxp binary
+
+hdl_prj/hdlsrc/** linguist-generated
