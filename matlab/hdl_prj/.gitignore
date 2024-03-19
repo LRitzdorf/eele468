@@ -5,3 +5,4 @@ hdlsrc/**/*_tc.vhd
 hdlsrc/**/gm_*.slx
 hdlsrc/**/hcv
 hdlsrc/**/hdl*status.mat
+hdlsrc/**/*.m
