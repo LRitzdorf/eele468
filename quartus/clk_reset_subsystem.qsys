@@ -47,7 +47,7 @@
  <parameter name="hideFromIPCatalog" value="false" />
  <parameter name="lockedInterfaceDefinition" value="" />
  <parameter name="maxAdditionalLatency" value="1" />
- <parameter name="projectName" value="DE10Nano_AudioMini_System.qpf" />
+ <parameter name="projectName">DE10Nano_AudioMini_System.qpf</parameter>
  <parameter name="sopcBorderPoints" value="false" />
  <parameter name="systemHash" value="0" />
  <parameter name="testBenchDutName" value="" />
@@ -87,7 +87,7 @@
  <module
    name="fabric_reset_bridge"
    kind="altera_reset_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="ACTIVE_LOW_RESET" value="0" />
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
@@ -98,7 +98,7 @@
  <module
    name="hps_and_fabric_reset_bridge"
    kind="altera_reset_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="ACTIVE_LOW_RESET" value="0" />
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
@@ -109,7 +109,7 @@
  <module
    name="hps_clk_bridge"
    kind="altera_clock_bridge"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="DERIVED_CLOCK_RATE" value="0" />
   <parameter name="EXPLICIT_CLOCK_RATE" value="50000000" />

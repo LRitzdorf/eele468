@@ -12,6 +12,7 @@
 - Tooling
   - 📁 **quartus**: Quartus project folder
   - 📁 **questa**: Questa (formerly ModelSim) project folder
+  - 📁 **matlab**: MATLAB and Simulink project folder
 - Software
   - 📁 **linux**: kernel modules, device trees, and associated resources
 

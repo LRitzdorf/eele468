@@ -56,6 +56,11 @@
    }
    element system_id.control_slave
    {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
       datum baseAddress
       {
          value = "0";
@@ -170,7 +175,7 @@
   <parameter name="AUTO_HPS_CLK_IN_RESET_DOMAIN" value="6" />
   <parameter name="AUTO_UNIQUE_ID">$${FILENAME}_clk_reset_inputs</parameter>
  </module>
- <module name="hps" kind="altera_hps" version="23.1" enabled="1">
+ <module name="hps" kind="altera_hps" version="21.1" enabled="1">
   <parameter name="ABSTRACT_REAL_COMPARE_TEST" value="false" />
   <parameter name="ABS_RAM_MEM_INIT_FILENAME" value="meminit" />
   <parameter name="ACV_PHY_CLK_ADD_FR_PHASE" value="0.0" />
@@ -703,13 +708,13 @@
  <module
    name="system_id"
    kind="altera_avalon_sysid_qsys"
-   version="23.1"
+   version="21.1"
    enabled="1">
   <parameter name="id" value="19088743" />
  </module>
  <connection
    kind="avalon"
-   version="23.1"
+   version="21.1"
    start="hps.h2f_lw_axi_master"
    end="system_id.control_slave">
   <parameter name="arbitrationPriority" value="1" />
@@ -718,27 +723,27 @@
  </connection>
  <connection
    kind="clock"
-   version="23.1"
+   version="21.1"
    start="clk_reset_inputs.hps_clk_out"
    end="system_id.clk" />
  <connection
    kind="clock"
-   version="23.1"
+   version="21.1"
    start="clk_reset_inputs.hps_clk_out"
    end="hps.h2f_lw_axi_clock" />
  <connection
    kind="reset"
-   version="23.1"
+   version="21.1"
    start="clk_reset_inputs.fabric_reset_out"
    end="ad1939_subsystem.subsystem_reset" />
  <connection
    kind="reset"
-   version="23.1"
+   version="21.1"
    start="hps.h2f_reset"
    end="system_id.reset" />
  <connection
    kind="reset"
-   version="23.1"
+   version="21.1"
    start="clk_reset_inputs.hps_and_fabric_reset_out"
    end="hps.f2h_cold_reset_req" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
