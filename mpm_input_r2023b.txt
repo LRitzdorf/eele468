@@ -79,7 +79,7 @@ product.Audio_Toolbox
 product.Control_System_Toolbox
 #product.Curve_Fitting_Toolbox
 #product.DDS_Blockset
-#product.DSP_HDL_Toolbox
+product.DSP_HDL_Toolbox
 product.DSP_System_Toolbox
 #product.Data_Acquisition_Toolbox
 #product.Database_Toolbox
