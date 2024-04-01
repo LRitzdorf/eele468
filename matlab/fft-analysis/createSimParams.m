@@ -15,10 +15,10 @@ function simParams = createSimParams(modelParams)
 %--------------------------------------------------------------------------
 % Simulation Parameters
 %--------------------------------------------------------------------------
-simParams.signalSelect     = 4;      % Input signal (see options below)
-simParams.verifySimulation = true;  
+simParams.signalSelect     = 2;      % Input signal (see options below)
+simParams.verifySimulation = false;  
 simParams.playOutput       = false;
-simParams.stopTime         = 1;   % seconds (long signal times can take a long time to simulate)
+simParams.stopTime         = 0.1; % seconds (long signal times can take a long time to simulate)
 
 %--------------------------------------------------------------------------
 % Model Parameters for simulation
