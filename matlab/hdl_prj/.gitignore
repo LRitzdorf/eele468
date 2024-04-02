@@ -1,8 +1,7 @@
 # Extra HDL Coder files and reports
 html/
-hdlsrc/**/*_map.txt
-hdlsrc/**/*_tc.vhd
-hdlsrc/**/gm_*.slx
+hdlsrc/**/*.txt
+hdlsrc/**/*.slx
 hdlsrc/**/hcv
-hdlsrc/**/hdl*status.mat
+hdlsrc/**/*.mat
 hdlsrc/**/*.m
