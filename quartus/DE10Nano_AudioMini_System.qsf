@@ -44,6 +44,59 @@ set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.0.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:48:23  JUNE 27, 2018"
 set_global_assignment -name LAST_QUARTUS_VERSION "21.1.1 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/waitForData.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/TWDLROM_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/TWDLROM.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/synthesis.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/SimpleDualPortRAM_generic_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/SimpleDualPortRAM_generic.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/overlapAdd.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_OUTMux_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_OUTMux.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_MEMSEL_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_MEMSEL.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_MEMORY_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_MEMORY.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_CTRL_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_CTRL.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_BTFSEL_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2FFT_BTFSEL.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2_BUTTERFLY_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/MINRESRX2_BUTTERFLY.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/iFFT.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/frequencyDomainProcessing.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/filterChoice.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/filter4Coefficients.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/filter3Coefficients.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/filter2Coefficients.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/filter1Coefficients.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fifoWriteSelect.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fifoStateMachine1.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/FIFO4.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/FIFO3.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/FIFO2.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/FIFO1.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftROMindexing.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftPulseGen.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftFramePulseGen.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftFrameBuffering.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftFilterCoefficients.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftAnalysisSynthesis_tc.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftAnalysisSynthesis_pkg.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fftAnalysisSynthesis.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/FFT.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/fastTransition.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/DualRateDualPortRAM_generic.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/Decrement_Stored_Integer.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/Complex4Multiply_block.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/Complex4Multiply.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/applyComplexGains.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/analysis.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/addrBStateMachine.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/addrBgen.vhd
+set_global_assignment -name VHDL_FILE ../matlab/hdl_prj/hdlsrc/fftAnalysisSynthesis/addrAoffset.vhd
+set_global_assignment -name VHDL_FILE ../common/lr2ast.vhd
+set_global_assignment -name VHDL_FILE ../common/ast2lr.vhd
 set_global_assignment -name VHDL_FILE ../common/common.vhd
 set_global_assignment -name VHDL_FILE ../common/delay_signal.vhd
 set_global_assignment -name VHDL_FILE DE10Nano_AudioMini_System.vhd
@@ -556,6 +609,15 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 # end ENTITY(altera_avalon_sc_fifo)
 # ---------------------------------
 
+# ------------------------------------------------------
+# start ENTITY(altera_avalon_st_handshake_clock_crosser)
+
+	# Project-Wide Assignments
+	# ========================
+
+# end ENTITY(altera_avalon_st_handshake_clock_crosser)
+# ----------------------------------------------------
+
 # -----------------------------------------
 # start ENTITY(altera_merlin_axi_master_ni)
 
@@ -592,6 +654,15 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 # end ENTITY(altera_merlin_slave_translator)
 # ------------------------------------------
 
+# -------------------------------------------
+# start ENTITY(altera_merlin_traffic_limiter)
+
+	# Project-Wide Assignments
+	# ========================
+
+# end ENTITY(altera_merlin_traffic_limiter)
+# -----------------------------------------
+
 # -------------------------------------
 # start ENTITY(altera_reset_controller)
 
@@ -600,6 +671,15 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
 # end ENTITY(altera_reset_controller)
 # -----------------------------------
+
+# --------------------------------
+# start ENTITY(fftFilterProcessor)
+
+	# Project-Wide Assignments
+	# ========================
+
+# end ENTITY(fftFilterProcessor)
+# ------------------------------
 
 # ------------------------
 # start ENTITY(soc_system)
@@ -756,6 +836,15 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 
 # end ENTITY(soc_system_mm_interconnect_0_rsp_demux)
 # --------------------------------------------------
+
+# --------------------------------------------------------
+# start ENTITY(soc_system_mm_interconnect_0_rsp_demux_001)
+
+	# Project-Wide Assignments
+	# ========================
+
+# end ENTITY(soc_system_mm_interconnect_0_rsp_demux_001)
+# ------------------------------------------------------
 
 # --------------------------------------------------
 # start ENTITY(soc_system_mm_interconnect_0_rsp_mux)
