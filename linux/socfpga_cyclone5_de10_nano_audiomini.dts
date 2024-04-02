@@ -10,6 +10,12 @@
         reg = <0xff200000 0x08>;
     };
 
+    // FFT filter processor
+    fftFilterProcessor: fftFilterProcessor@ff200008 {
+        compatible = "lr,fftfilter";
+        reg = <0xff200008 0x08>;
+    };
+
     tpa613a2 {
         compatible = "dev,al-tpa613a2";
     };
