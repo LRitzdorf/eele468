@@ -12,7 +12,7 @@
 -- Module: fftFramePulseGen
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/fftPulseGen/fftFramePulseGen
 -- Hierarchy Level: 4
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;

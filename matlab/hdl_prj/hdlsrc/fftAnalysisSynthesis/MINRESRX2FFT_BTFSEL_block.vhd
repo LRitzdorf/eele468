@@ -12,7 +12,7 @@
 -- Module: MINRESRX2FFT_BTFSEL_block
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis/iFFT/MINRESRX2FFT_BTFSEL
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,7 +22,7 @@ USE IEEE.numeric_std.ALL;
 ENTITY MINRESRX2FFT_BTFSEL_block IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         din_1_im                          :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         din_1_re                          :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         validIn                           :   IN    std_logic;
@@ -135,7 +135,7 @@ BEGIN
       minResRX2FFTBTFSEL_btfInReg_vld <= '0';
       minResRX2FFTBTFSEL_dMemOutReg_vld <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         minResRX2FFTBTFSEL_btfIn1Reg_re <= minResRX2FFTBTFSEL_btfIn1Reg_re_next;
         minResRX2FFTBTFSEL_btfIn1Reg_im <= minResRX2FFTBTFSEL_btfIn1Reg_im_next;
         minResRX2FFTBTFSEL_btfIn2Reg_re <= minResRX2FFTBTFSEL_btfIn2Reg_re_next;

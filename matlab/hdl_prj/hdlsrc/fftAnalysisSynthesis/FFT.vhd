@@ -12,7 +12,7 @@
 -- Module: FFT
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/FFT
 -- Hierarchy Level: 2
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- FFT
 -- 
@@ -24,7 +24,7 @@ USE IEEE.numeric_std.ALL;
 ENTITY FFT IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         dataIn                            :   IN    std_logic_vector(23 DOWNTO 0);  -- sfix24_En23
         validIn                           :   IN    std_logic;
         dataOut_re                        :   OUT   std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -40,7 +40,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT TWDLROM
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           dMemOutDly_vld                  :   IN    std_logic;
           stage                           :   IN    std_logic_vector(2 DOWNTO 0);  -- ufix3
           initIC                          :   IN    std_logic;
@@ -52,7 +52,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT MINRESRX2FFT_MEMORY
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           dMemIn1_re                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           dMemIn1_im                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           dMemIn2_re                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -76,7 +76,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT MINRESRX2FFT_BTFSEL
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           din_1_re                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           din_1_im                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           validIn                         :   IN    std_logic;
@@ -99,7 +99,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT MINRESRX2_BUTTERFLY
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           btfIn1_re                       :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           btfIn1_im                       :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           btfIn2_re                       :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -118,7 +118,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT MINRESRX2FFT_MEMSEL
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           btfOut1_re                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           btfOut1_im                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           btfOut2_re                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -137,7 +137,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT MINRESRX2FFT_CTRL
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           din_1_re                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           din_1_im                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           validIn                         :   IN    std_logic;
@@ -168,7 +168,7 @@ ARCHITECTURE rtl OF FFT IS
   COMPONENT MINRESRX2FFT_OUTMux
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           rdEnb1                          :   IN    std_logic;
           rdEnb2                          :   IN    std_logic;
           rdEnb3                          :   IN    std_logic;
@@ -256,7 +256,7 @@ BEGIN
   u_MinResRX2FFT_TWDLROM : TWDLROM
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               dMemOutDly_vld => dMemOutDly_vld,
               stage => stage,  -- ufix3
               initIC => initIC,
@@ -267,7 +267,7 @@ BEGIN
   u_MinResRX2FFT_MEMORY : MINRESRX2FFT_MEMORY
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               dMemIn1_re => dMemIn1_re,  -- sfix31_En23
               dMemIn1_im => dMemIn1_im,  -- sfix31_En23
               dMemIn2_re => dMemIn2_re,  -- sfix31_En23
@@ -290,7 +290,7 @@ BEGIN
   u_MinResRX2FFT_BTFSEL : MINRESRX2FFT_BTFSEL
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               din_1_re => std_logic_vector(dtc_re),  -- sfix31_En23
               din_1_im => std_logic_vector(dtc_im),  -- sfix31_En23
               validIn => validIn,
@@ -312,7 +312,7 @@ BEGIN
   u_MinResRX2FFT_BUTTERFLY : MINRESRX2_BUTTERFLY
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               btfIn1_re => btfIn1_re,  -- sfix31_En23
               btfIn1_im => btfIn1_im,  -- sfix31_En23
               btfIn2_re => btfIn2_re,  -- sfix31_En23
@@ -330,7 +330,7 @@ BEGIN
   u_MinResRX2FFT_MEMSEL : MINRESRX2FFT_MEMSEL
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               btfOut1_re => btfOut1_re,  -- sfix31_En23
               btfOut1_im => btfOut1_im,  -- sfix31_En23
               btfOut2_re => btfOut2_re,  -- sfix31_En23
@@ -348,7 +348,7 @@ BEGIN
   u_MinResRX2FFT_CTRL : MINRESRX2FFT_CTRL
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               din_1_re => std_logic_vector(dtc_re),  -- sfix31_En23
               din_1_im => std_logic_vector(dtc_im),  -- sfix31_En23
               validIn => validIn,
@@ -378,7 +378,7 @@ BEGIN
   u_MinResRX2FFT_OUTMUX : MINRESRX2FFT_OUTMux
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               rdEnb1 => rdEnb1,
               rdEnb2 => rdEnb2,
               rdEnb3 => rdEnb3,
@@ -405,7 +405,7 @@ BEGIN
     IF reset = '1' THEN
       dMemOutDly_vld <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         IF syncReset = '1' THEN
           dMemOutDly_vld <= '0';
         ELSE 

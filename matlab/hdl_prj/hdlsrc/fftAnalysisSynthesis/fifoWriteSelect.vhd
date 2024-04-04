@@ -12,15 +12,19 @@
 -- Module: fifoWriteSelect
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis/overlapAdd/fifoWriteSelect
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.std_logic_1164.ALL;
 USE IEEE.numeric_std.ALL;
+USE work.fftAnalysisSynthesis_pkg.ALL;
 
 ENTITY fifoWriteSelect IS
-  PORT( fifoCounter                       :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
+  PORT( clk                               :   IN    std_logic;
+        reset                             :   IN    std_logic;
+        enb                               :   IN    std_logic;
+        fifoCounter                       :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
         validSignal                       :   IN    std_logic;
         valid1                            :   OUT   std_logic;
         valid2                            :   OUT   std_logic;
@@ -36,14 +40,30 @@ ARCHITECTURE rtl OF fifoWriteSelect IS
 
   -- Signals
   SIGNAL fifoCounter_unsigned             : unsigned(1 DOWNTO 0);  -- ufix2
+  SIGNAL delayMatch_reg                   : vector_of_unsigned2(0 TO 5);  -- ufix2 [6]
+  SIGNAL fifoCounter_1                    : unsigned(1 DOWNTO 0);  -- ufix2
 
 BEGIN
   fifoCounter_unsigned <= unsigned(fifoCounter);
 
-  fifoWriteSelect_1_output : PROCESS (fifoCounter_unsigned, validSignal)
+  delayMatch_process : PROCESS (clk, reset)
+  BEGIN
+    IF reset = '1' THEN
+      delayMatch_reg <= (OTHERS => to_unsigned(16#0#, 2));
+    ELSIF rising_edge(clk) THEN
+      IF enb = '1' THEN
+        delayMatch_reg(0) <= fifoCounter_unsigned;
+        delayMatch_reg(1 TO 5) <= delayMatch_reg(0 TO 4);
+      END IF;
+    END IF;
+  END PROCESS delayMatch_process;
+
+  fifoCounter_1 <= delayMatch_reg(5);
+
+  fifoWriteSelect_1_output : PROCESS (fifoCounter_1, validSignal)
   BEGIN
     --MATLAB Function 'fftAnalysisSynthesis/synthesis/overlapAdd/fifoWriteSelect'
-    CASE fifoCounter_unsigned IS
+    CASE fifoCounter_1 IS
       WHEN "00" =>
         valid1 <= validSignal;
         valid2 <= '0';

@@ -12,7 +12,7 @@
 -- Module: addrBgen
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/addrBgen
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,8 +22,6 @@ USE IEEE.numeric_std.ALL;
 ENTITY addrBgen IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
         fftStart                          :   IN    std_logic;
         addrB                             :   OUT   std_logic_vector(7 DOWNTO 0);  -- uint8
@@ -41,7 +39,7 @@ ARCHITECTURE rtl OF addrBgen IS
   COMPONENT addrBStateMachine
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           start                           :   IN    std_logic;
           fftCountHit                     :   IN    std_logic;
           powerup                         :   OUT   std_logic;
@@ -62,39 +60,18 @@ ARCHITECTURE rtl OF addrBgen IS
   SIGNAL Constant1_out1                   : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL fftIndexCounter_out1             : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count                            : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_1                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCounter_out1_1           : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCounter_out1_2           : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL fftIndexCounterEnable            : std_logic;
-  SIGNAL fftIndexCounterEnable_1          : std_logic;
-  SIGNAL fftIndexCounterEnable_2          : std_logic;
-  SIGNAL count_2                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_3                          : unsigned(7 DOWNTO 0);  -- uint8
+  SIGNAL count_1                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL fftIndexCounterReset             : std_logic;
-  SIGNAL fftIndexCounterReset_1           : std_logic;
-  SIGNAL rd_2_reg                         : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
-  SIGNAL fftIndexCounterReset_2           : std_logic;
-  SIGNAL count_4                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_5                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCounter_bypass_reg       : unsigned(7 DOWNTO 0);  -- ufix8
+  SIGNAL count_2                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL Relational_Operator_relop1       : std_logic;
   SIGNAL Delay2_out1                      : std_logic;
   SIGNAL powerup                          : std_logic;
   SIGNAL frameShiftCounterEnable          : std_logic;
-  SIGNAL frameShiftCounterEnable_1        : std_logic;
-  SIGNAL rd_21_reg                        : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
-  SIGNAL frameShiftCounterEnable_2        : std_logic;
   SIGNAL count_step_1                     : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_step_2                     : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL frameShiftCounter_out1           : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_6                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_7                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL frameShiftCounter_out1_1         : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL frameShiftCounter_out1_2         : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL frameShiftCounter_out1_3         : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_8                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_9                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL frameShiftCounter_bypass_reg     : unsigned(7 DOWNTO 0);  -- ufix8
+  SIGNAL count_3                          : unsigned(7 DOWNTO 0);  -- uint8
+  SIGNAL count_4                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL Add_out1                         : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL Constant_out1                    : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL Switch_out1                      : unsigned(7 DOWNTO 0);  -- uint8
@@ -113,7 +90,7 @@ BEGIN
   u_addrBStateMachine : addrBStateMachine
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               start => fftStart,
               fftCountHit => Delay2_out1,
               powerup => powerup,
@@ -134,111 +111,28 @@ BEGIN
 
   count <= fftIndexCounter_out1 + count_step;
 
-  rd_4_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_1 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_1 <= count;
-      END IF;
-    END IF;
-  END PROCESS rd_4_process;
-
-
-  fftIndexCounter_out1 <= fftIndexCounter_out1_1;
-
-  rd_3_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftIndexCounter_out1_2 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        fftIndexCounter_out1_2 <= fftIndexCounter_out1;
-      END IF;
-    END IF;
-  END PROCESS rd_3_process;
-
-
-  fftIndexCounterEnable_1 <= fftIndexCounterEnable;
-
-  rd_1_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftIndexCounterEnable_2 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        fftIndexCounterEnable_2 <= fftIndexCounterEnable_1;
-      END IF;
-    END IF;
-  END PROCESS rd_1_process;
-
+  
+  count_1 <= fftIndexCounter_out1 WHEN fftIndexCounterEnable = '0' ELSE
+      count;
 
   
-  count_2 <= fftIndexCounter_out1_2 WHEN fftIndexCounterEnable_2 = '0' ELSE
-      count_1;
-
-  rd_5_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_3 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_3 <= count_2;
-      END IF;
-    END IF;
-  END PROCESS rd_5_process;
-
-
-  fftIndexCounterReset_1 <= fftIndexCounterReset;
-
-  rd_2_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_2_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        rd_2_reg(0) <= fftIndexCounterReset_1;
-        rd_2_reg(1) <= rd_2_reg(0);
-      END IF;
-    END IF;
-  END PROCESS rd_2_process;
-
-  fftIndexCounterReset_2 <= rd_2_reg(1);
-
-  
-  count_4 <= count_3 WHEN fftIndexCounterReset_2 = '0' ELSE
+  count_2 <= count_1 WHEN fftIndexCounterReset = '0' ELSE
       count_reset;
 
-  crp_out_delay_process : PROCESS (clk, reset)
+  fftIndexCounter_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      count_5 <= to_unsigned(16#00#, 8);
+      fftIndexCounter_out1 <= to_unsigned(16#00#, 8);
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        count_5 <= count_4;
+        fftIndexCounter_out1 <= count_2;
       END IF;
     END IF;
-  END PROCESS crp_out_delay_process;
+  END PROCESS fftIndexCounter_process;
 
-
-  fftIndexCounter_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftIndexCounter_bypass_reg <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        fftIndexCounter_bypass_reg <= count_5;
-      END IF;
-    END IF;
-  END PROCESS fftIndexCounter_bypass_process;
 
   
-  fftIndexCounter_out1_1 <= count_5 WHEN enb_1_2048_1 = '1' ELSE
-      fftIndexCounter_bypass_reg;
-
-  
-  Relational_Operator_relop1 <= '1' WHEN fftIndexCounter_out1_1 >= Constant1_out1 ELSE
+  Relational_Operator_relop1 <= '1' WHEN fftIndexCounter_out1 >= Constant1_out1 ELSE
       '0';
 
   Delay2_process : PROCESS (clk, reset)
@@ -246,118 +140,37 @@ BEGIN
     IF reset = '1' THEN
       Delay2_out1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         Delay2_out1 <= Relational_Operator_relop1;
       END IF;
     END IF;
   END PROCESS Delay2_process;
 
 
-  frameShiftCounterEnable_1 <= frameShiftCounterEnable;
-
-  rd_21_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_21_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        rd_21_reg(0) <= frameShiftCounterEnable_1;
-        rd_21_reg(1) <= rd_21_reg(0);
-      END IF;
-    END IF;
-  END PROCESS rd_21_process;
-
-  frameShiftCounterEnable_2 <= rd_21_reg(1);
-
   -- Free running, Unsigned Counter
   --  initial value   = 0
   --  step value      = 32
   count_step_1 <= to_unsigned(16#20#, 8);
 
-  rd_11_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_step_2 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_step_2 <= count_step_1;
-      END IF;
-    END IF;
-  END PROCESS rd_11_process;
+  count_3 <= frameShiftCounter_out1 + count_step_1;
 
+  
+  count_4 <= frameShiftCounter_out1 WHEN frameShiftCounterEnable = '0' ELSE
+      count_3;
 
-  count_6 <= frameShiftCounter_out1 + count_step_2;
-
-  rd_41_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_7 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_7 <= count_6;
-      END IF;
-    END IF;
-  END PROCESS rd_41_process;
-
-
-  frameShiftCounter_out1_2 <= frameShiftCounter_out1_1;
-
-  rd_0_process : PROCESS (clk, reset)
+  frameShiftCounter_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
       frameShiftCounter_out1 <= to_unsigned(16#00#, 8);
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        frameShiftCounter_out1 <= frameShiftCounter_out1_2;
+        frameShiftCounter_out1 <= count_4;
       END IF;
     END IF;
-  END PROCESS rd_0_process;
+  END PROCESS frameShiftCounter_process;
 
 
-  rd_31_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      frameShiftCounter_out1_3 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        frameShiftCounter_out1_3 <= frameShiftCounter_out1;
-      END IF;
-    END IF;
-  END PROCESS rd_31_process;
-
-
-  
-  count_8 <= frameShiftCounter_out1_3 WHEN frameShiftCounterEnable_2 = '0' ELSE
-      count_7;
-
-  crp_out_delay1_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_9 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_9 <= count_8;
-      END IF;
-    END IF;
-  END PROCESS crp_out_delay1_process;
-
-
-  frameShiftCounter_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      frameShiftCounter_bypass_reg <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        frameShiftCounter_bypass_reg <= count_9;
-      END IF;
-    END IF;
-  END PROCESS frameShiftCounter_bypass_process;
-
-  
-  frameShiftCounter_out1_1 <= count_9 WHEN enb_1_2048_1 = '1' ELSE
-      frameShiftCounter_bypass_reg;
-
-  Add_out1 <= frameShiftCounter_out1_1 + fftIndexCounter_out1_1;
+  Add_out1 <= frameShiftCounter_out1 + fftIndexCounter_out1;
 
   Constant_out1 <= to_unsigned(16#A0#, 8);
 
@@ -367,7 +180,7 @@ BEGIN
 
   addrB <= std_logic_vector(Switch_out1);
 
-  windowIndex <= std_logic_vector(fftIndexCounter_out1_1);
+  windowIndex <= std_logic_vector(fftIndexCounter_out1);
 
 END rtl;
 

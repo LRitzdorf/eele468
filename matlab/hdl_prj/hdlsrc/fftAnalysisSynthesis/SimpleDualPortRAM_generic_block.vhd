@@ -12,7 +12,7 @@
 -- Module: SimpleDualPortRAM_generic_block
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/FFT/MINRESRX2FFT_MEMORY/SimpleDualPortRAM_generic
 -- Hierarchy Level: 4
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -24,7 +24,7 @@ ENTITY SimpleDualPortRAM_generic_block IS
            DataWidth                      : integer := 1
            );
   PORT( clk                               :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         wr_din                            :   IN    std_logic_vector(DataWidth - 1 DOWNTO 0);  -- generic width
         wr_addr                           :   IN    std_logic_vector(AddrWidth - 1 DOWNTO 0);  -- generic width
         wr_en                             :   IN    std_logic;  -- ufix1
@@ -53,7 +53,7 @@ BEGIN
   SimpleDualPortRAM_generic_process: PROCESS (clk)
   BEGIN
     IF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         IF wr_en = '1' THEN
           ram(to_integer(wr_addr_unsigned)) <= wr_din;
         END IF;

@@ -13,7 +13,7 @@
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing/applyComplexGains/fftFilterCoefficients/fftROMindexing/Decrement 
 -- Stored Intege
 -- Hierarchy Level: 5
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;

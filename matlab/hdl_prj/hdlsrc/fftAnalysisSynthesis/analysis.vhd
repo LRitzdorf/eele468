@@ -12,7 +12,7 @@
 -- Module: analysis
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis
 -- Hierarchy Level: 1
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,11 +22,10 @@ USE IEEE.numeric_std.ALL;
 ENTITY analysis IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
-        enb_1_4194304_0                   :   IN    std_logic;
+        enb_1_2048_1                      :   IN    std_logic;
+        enb_1_2048_0                      :   IN    std_logic;
+        enb_1_1_1                         :   IN    std_logic;
         audioIn                           :   IN    std_logic_vector(23 DOWNTO 0);  -- sfix24_En23
         passthrough                       :   IN    std_logic;  -- ufix1
         filterSelect                      :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
@@ -48,11 +47,10 @@ ARCHITECTURE rtl OF analysis IS
   COMPONENT fftFrameBuffering
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
-          enb_1_4194304_0                 :   IN    std_logic;
+          enb_1_2048_1                    :   IN    std_logic;
+          enb_1_2048_0                    :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           audioIn                         :   IN    std_logic_vector(23 DOWNTO 0);  -- sfix24_En23
           passthrough                     :   IN    std_logic;  -- ufix1
           filterSelect                    :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
@@ -67,7 +65,7 @@ ARCHITECTURE rtl OF analysis IS
   COMPONENT FFT
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           dataIn                          :   IN    std_logic_vector(23 DOWNTO 0);  -- sfix24_En23
           validIn                         :   IN    std_logic;
           dataOut_re                      :   OUT   std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -89,6 +87,7 @@ ARCHITECTURE rtl OF analysis IS
   SIGNAL fftFrameBuffering_out3           : std_logic;
   SIGNAL fftFrameBuffering_out4           : std_logic;  -- ufix1
   SIGNAL fftFrameBuffering_out5           : std_logic_vector(1 DOWNTO 0);  -- ufix2
+  SIGNAL delayMatch_reg                   : std_logic_vector(2 DOWNTO 0);  -- ufix1 [3]
   SIGNAL fftValid_2                       : std_logic;
   SIGNAL FFT_out1_re                      : std_logic_vector(30 DOWNTO 0);  -- ufix31
   SIGNAL FFT_out1_im                      : std_logic_vector(30 DOWNTO 0);  -- ufix31
@@ -102,11 +101,10 @@ BEGIN
   u_fftFrameBuffering : fftFrameBuffering
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              enb_1_4194304_0 => enb_1_4194304_0,
+              enb_1_2048_1 => enb_1_2048_1,
+              enb_1_2048_0 => enb_1_2048_0,
+              enb_1_1_1 => enb_1_1_1,
               audioIn => audioIn,  -- sfix24_En23
               passthrough => passthrough,  -- ufix1
               filterSelect => filterSelect,  -- ufix2
@@ -120,7 +118,7 @@ BEGIN
   u_FFT : FFT
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               dataIn => fftFrameBuffering_out1,  -- sfix24_En23
               validIn => fftValid_2,
               dataOut_re => FFT_out1_re,  -- sfix31_En23
@@ -131,14 +129,16 @@ BEGIN
   delayMatch_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      fftValid_2 <= '0';
+      delayMatch_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        fftValid_2 <= fftValid_1;
+      IF enb = '1' THEN
+        delayMatch_reg(0) <= fftValid_1;
+        delayMatch_reg(2 DOWNTO 1) <= delayMatch_reg(1 DOWNTO 0);
       END IF;
     END IF;
   END PROCESS delayMatch_process;
 
+  fftValid_2 <= delayMatch_reg(2);
 
   fftData_re <= FFT_out1_re;
 

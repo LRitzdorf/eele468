@@ -12,7 +12,7 @@
 -- Module: frequencyDomainProcessing
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing
 -- Hierarchy Level: 1
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -23,8 +23,6 @@ USE work.fftAnalysisSynthesis_pkg.ALL;
 ENTITY frequencyDomainProcessing IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
         fftData_re                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         fftData_im                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -42,14 +40,10 @@ END frequencyDomainProcessing;
 
 ARCHITECTURE rtl OF frequencyDomainProcessing IS
 
-  ATTRIBUTE multstyle : string;
-
   -- Component Declarations
   COMPONENT applyComplexGains
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
           fftData_re                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           fftData_im                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -68,11 +62,10 @@ ARCHITECTURE rtl OF frequencyDomainProcessing IS
     USE ENTITY work.applyComplexGains(rtl);
 
   -- Signals
+  SIGNAL rd_0_reg                         : std_logic_vector(3 DOWNTO 0);  -- ufix1 [4]
   SIGNAL passthrough_1                    : std_logic;  -- ufix1
-  SIGNAL delayMatch_reg                   : std_logic_vector(2047 DOWNTO 0);  -- ufix1 [2048]
+  SIGNAL rd_2_reg                         : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
   SIGNAL passthrough_2                    : std_logic;  -- ufix1
-  SIGNAL rd_1_reg                         : std_logic_vector(3 DOWNTO 0);  -- ufix1 [4]
-  SIGNAL passthrough_3                    : std_logic;  -- ufix1
   SIGNAL switch_compare_1                 : std_logic;
   SIGNAL applyComplexGains_out1_re        : std_logic_vector(30 DOWNTO 0);  -- ufix31
   SIGNAL applyComplexGains_out1_im        : std_logic_vector(30 DOWNTO 0);  -- ufix31
@@ -80,31 +73,20 @@ ARCHITECTURE rtl OF frequencyDomainProcessing IS
   SIGNAL applyComplexGains_out3           : std_logic;
   SIGNAL applyComplexGains_out1_re_signed : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL applyComplexGains_out1_im_signed : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL applyComplexGains_out1_re_1      : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL applyComplexGains_out1_im_1      : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL fftData_re_signed                : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL fftData_im_signed                : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL rd_1_reg_re                      : vector_of_signed31(0 TO 2);  -- sfix31_En23 [3]
+  SIGNAL rd_1_reg_im                      : vector_of_signed31(0 TO 2);  -- sfix31_En23 [3]
   SIGNAL fftData_re_1                     : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL fftData_im_1                     : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL rd_0_reg_re                      : vector_of_signed31(0 TO 3);  -- sfix31_En23 [4]
-  SIGNAL rd_0_reg_im                      : vector_of_signed31(0 TO 3);  -- sfix31_En23 [4]
-  SIGNAL fftData_re_2                     : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL fftData_im_2                     : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Switch_out1_re                   : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Switch_out1_im                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL t1_bypass_reg_re                 : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL t1_bypass_reg_im                 : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Switch_out1_re_1                 : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Switch_out1_im_1                 : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL switch_compare_1_1               : std_logic;
+  SIGNAL rd_4_reg                         : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
   SIGNAL applyComplexGains_out2_1         : std_logic;
   SIGNAL fftValid_1                       : std_logic;
   SIGNAL Switch1_out1                     : std_logic;
-  SIGNAL t_bypass_reg                     : std_logic;  -- ufix1
-  SIGNAL Switch1_out1_1                   : std_logic;
   SIGNAL switch_compare_1_2               : std_logic;
-  SIGNAL applyComplexGains_out3_1         : std_logic;
-  SIGNAL fftFramePulse_1                  : std_logic;
-  SIGNAL delayMatch1_reg                  : std_logic_vector(2047 DOWNTO 0);  -- ufix1 [2048]
-  SIGNAL fftFramePulse_2                  : std_logic;
   SIGNAL Switch2_out1                     : std_logic;
 
 BEGIN
@@ -116,8 +98,6 @@ BEGIN
   u_applyComplexGains : applyComplexGains
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
               fftData_re => fftData_re,  -- sfix31_En23
               fftData_im => fftData_im,  -- sfix31_En23
@@ -130,165 +110,118 @@ BEGIN
               fftFramePulseOut => applyComplexGains_out3
               );
 
-  passthrough_1 <= passthrough;
-
-  delayMatch_process : PROCESS (clk, reset)
+  rd_0_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      delayMatch_reg <= (OTHERS => '0');
+      rd_0_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        delayMatch_reg(0) <= passthrough_1;
-        delayMatch_reg(2047 DOWNTO 1) <= delayMatch_reg(2046 DOWNTO 0);
+        rd_0_reg(0) <= passthrough;
+        rd_0_reg(3 DOWNTO 1) <= rd_0_reg(2 DOWNTO 0);
       END IF;
     END IF;
-  END PROCESS delayMatch_process;
+  END PROCESS rd_0_process;
 
-  passthrough_2 <= delayMatch_reg(2047);
+  passthrough_1 <= rd_0_reg(3);
 
-  rd_1_process : PROCESS (clk, reset)
+  rd_2_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      rd_1_reg <= (OTHERS => '0');
+      rd_2_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        rd_1_reg(0) <= passthrough_2;
-        rd_1_reg(3 DOWNTO 1) <= rd_1_reg(2 DOWNTO 0);
+        rd_2_reg(0) <= passthrough_1;
+        rd_2_reg(1) <= rd_2_reg(0);
       END IF;
     END IF;
-  END PROCESS rd_1_process;
+  END PROCESS rd_2_process;
 
-  passthrough_3 <= rd_1_reg(3);
+  passthrough_2 <= rd_2_reg(1);
 
   
-  switch_compare_1 <= '1' WHEN passthrough_3 > '0' ELSE
+  switch_compare_1 <= '1' WHEN passthrough_2 > '0' ELSE
       '0';
 
   applyComplexGains_out1_re_signed <= signed(applyComplexGains_out1_re);
 
   applyComplexGains_out1_im_signed <= signed(applyComplexGains_out1_im);
 
-  rd_2_process : PROCESS (clk, reset)
+  fftData_re_signed <= signed(fftData_re);
+
+  fftData_im_signed <= signed(fftData_im);
+
+  rd_1_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      applyComplexGains_out1_re_1 <= to_signed(16#00000000#, 31);
-      applyComplexGains_out1_im_1 <= to_signed(16#00000000#, 31);
+      rd_1_reg_re <= (OTHERS => to_signed(16#00000000#, 31));
+      rd_1_reg_im <= (OTHERS => to_signed(16#00000000#, 31));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        applyComplexGains_out1_re_1 <= applyComplexGains_out1_re_signed;
-        applyComplexGains_out1_im_1 <= applyComplexGains_out1_im_signed;
+        rd_1_reg_im(0) <= fftData_im_signed;
+        rd_1_reg_im(1 TO 2) <= rd_1_reg_im(0 TO 1);
+        rd_1_reg_re(0) <= fftData_re_signed;
+        rd_1_reg_re(1 TO 2) <= rd_1_reg_re(0 TO 1);
       END IF;
     END IF;
-  END PROCESS rd_2_process;
+  END PROCESS rd_1_process;
 
-
-  fftData_re_1 <= signed(fftData_re);
-
-  fftData_im_1 <= signed(fftData_im);
-
-  rd_0_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_0_reg_re <= (OTHERS => to_signed(16#00000000#, 31));
-      rd_0_reg_im <= (OTHERS => to_signed(16#00000000#, 31));
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        rd_0_reg_im(0) <= fftData_im_1;
-        rd_0_reg_im(1 TO 3) <= rd_0_reg_im(0 TO 2);
-        rd_0_reg_re(0) <= fftData_re_1;
-        rd_0_reg_re(1 TO 3) <= rd_0_reg_re(0 TO 2);
-      END IF;
-    END IF;
-  END PROCESS rd_0_process;
-
-  fftData_re_2 <= rd_0_reg_re(3);
-  fftData_im_2 <= rd_0_reg_im(3);
+  fftData_re_1 <= rd_1_reg_re(2);
+  fftData_im_1 <= rd_1_reg_im(2);
 
   
-  Switch_out1_re <= applyComplexGains_out1_re_1 WHEN switch_compare_1 = '0' ELSE
-      fftData_re_2;
+  Switch_out1_re <= applyComplexGains_out1_re_signed WHEN switch_compare_1 = '0' ELSE
+      fftData_re_1;
   
-  Switch_out1_im <= applyComplexGains_out1_im_1 WHEN switch_compare_1 = '0' ELSE
-      fftData_im_2;
+  Switch_out1_im <= applyComplexGains_out1_im_signed WHEN switch_compare_1 = '0' ELSE
+      fftData_im_1;
 
-  t1_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      t1_bypass_reg_re <= to_signed(16#00000000#, 31);
-      t1_bypass_reg_im <= to_signed(16#00000000#, 31);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        t1_bypass_reg_im <= Switch_out1_im;
-        t1_bypass_reg_re <= Switch_out1_re;
-      END IF;
-    END IF;
-  END PROCESS t1_bypass_process;
+  fftModifiedData_re <= std_logic_vector(Switch_out1_re);
+
+  fftModifiedData_im <= std_logic_vector(Switch_out1_im);
 
   
-  Switch_out1_re_1 <= Switch_out1_re WHEN enb_1_2048_1 = '1' ELSE
-      t1_bypass_reg_re;
-  
-  Switch_out1_im_1 <= Switch_out1_im WHEN enb_1_2048_1 = '1' ELSE
-      t1_bypass_reg_im;
-
-  fftModifiedData_re <= std_logic_vector(Switch_out1_re_1);
-
-  fftModifiedData_im <= std_logic_vector(Switch_out1_im_1);
-
-  
-  switch_compare_1_1 <= '1' WHEN passthrough_2 > '0' ELSE
+  switch_compare_1_1 <= '1' WHEN passthrough_1 > '0' ELSE
       '0';
 
-  applyComplexGains_out2_1 <= applyComplexGains_out2;
+  rd_4_process : PROCESS (clk, reset)
+  BEGIN
+    IF reset = '1' THEN
+      rd_4_reg <= (OTHERS => '0');
+    ELSIF rising_edge(clk) THEN
+      IF enb = '1' THEN
+        rd_4_reg(0) <= applyComplexGains_out2;
+        rd_4_reg(1) <= rd_4_reg(0);
+      END IF;
+    END IF;
+  END PROCESS rd_4_process;
 
-  fftValid_1 <= fftValid;
+  applyComplexGains_out2_1 <= rd_4_reg(1);
+
+  rd_3_process : PROCESS (clk, reset)
+  BEGIN
+    IF reset = '1' THEN
+      fftValid_1 <= '0';
+    ELSIF rising_edge(clk) THEN
+      IF enb = '1' THEN
+        fftValid_1 <= fftValid;
+      END IF;
+    END IF;
+  END PROCESS rd_3_process;
+
 
   
   Switch1_out1 <= applyComplexGains_out2_1 WHEN switch_compare_1_1 = '0' ELSE
       fftValid_1;
 
-  t_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      t_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        t_bypass_reg <= Switch1_out1;
-      END IF;
-    END IF;
-  END PROCESS t_bypass_process;
-
   
-  Switch1_out1_1 <= Switch1_out1 WHEN enb_1_2048_1 = '1' ELSE
-      t_bypass_reg;
-
-  
-  switch_compare_1_2 <= '1' WHEN passthrough_2 > '0' ELSE
+  switch_compare_1_2 <= '1' WHEN passthrough > '0' ELSE
       '0';
 
-  applyComplexGains_out3_1 <= applyComplexGains_out3;
-
-  fftFramePulse_1 <= fftFramePulse;
-
-  delayMatch1_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch1_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        delayMatch1_reg(0) <= fftFramePulse_1;
-        delayMatch1_reg(2047 DOWNTO 1) <= delayMatch1_reg(2046 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch1_process;
-
-  fftFramePulse_2 <= delayMatch1_reg(2047);
-
   
-  Switch2_out1 <= applyComplexGains_out3_1 WHEN switch_compare_1_2 = '0' ELSE
-      fftFramePulse_2;
+  Switch2_out1 <= applyComplexGains_out3 WHEN switch_compare_1_2 = '0' ELSE
+      fftFramePulse;
 
-  fftValidOut <= Switch1_out1_1;
+  fftValidOut <= Switch1_out1;
 
   fftFramePulseOut <= Switch2_out1;
 

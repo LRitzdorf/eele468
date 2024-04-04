@@ -12,7 +12,7 @@
 -- Module: FIFO4
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis/overlapAdd/FIFO4
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- 
 -- -------------------------------------------------------------
@@ -23,9 +23,9 @@ USE IEEE.numeric_std.ALL;
 ENTITY FIFO4 IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         enb_1_2048_1                      :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
+        enb_1_1_1                         :   IN    std_logic;
         In_rsvd                           :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         Push                              :   IN    std_logic;
         Pop                               :   IN    std_logic;
@@ -42,7 +42,7 @@ ARCHITECTURE rtl OF FIFO4 IS
              DataWidth                    : integer
              );
     PORT( clk                             :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           wr_din                          :   IN    std_logic_vector(DataWidth - 1 DOWNTO 0);  -- generic width
           wr_addr                         :   IN    std_logic_vector(AddrWidth - 1 DOWNTO 0);  -- generic width
           wr_en                           :   IN    std_logic;  -- ufix1
@@ -100,7 +100,7 @@ BEGIN
                  DataWidth => 31
                  )
     PORT MAP( clk => clk,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               wr_din => In_rsvd,
               wr_addr => std_logic_vector(w_waddr),
               wr_en => w_we,  -- ufix1
@@ -112,7 +112,7 @@ BEGIN
 
   -- us3: Upsample by 2048, Sample offset 0 
   
-  us3_muxout <= Pop WHEN enb_1_4194304_1 = '1' ELSE
+  us3_muxout <= Pop WHEN enb_1_2048_1 = '1' ELSE
       us3_zero;
 
   -- Upsample bypass register
@@ -121,14 +121,14 @@ BEGIN
     IF reset = '1' THEN
       us3_bypass_reg <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
+      IF enb_1_1_1 = '1' THEN
         us3_bypass_reg <= us3_muxout;
       END IF;
     END IF;
   END PROCESS us3_bypass_process;
 
   
-  us3_bypassout <= us3_muxout WHEN enb_1_2048_1 = '1' ELSE
+  us3_bypassout <= us3_muxout WHEN enb_1_1_1 = '1' ELSE
       us3_bypass_reg;
 
   -- FIFO logic controller
@@ -142,7 +142,7 @@ BEGIN
       fifo_back_dir <= to_unsigned(16#01#, 7);
       fifo_sample_count <= to_unsigned(16#00#, 8);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         fifo_front_indx <= fifo_front_indx_next;
         fifo_front_dir <= fifo_front_dir_next;
         fifo_back_indx <= fifo_back_indx_next;
@@ -200,7 +200,7 @@ BEGIN
     IF reset = '1' THEN
       w_d1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         w_d1 <= w_mux1;
       END IF;
     END IF;
@@ -214,7 +214,7 @@ BEGIN
     IF reset = '1' THEN
       w_d2 <= to_signed(16#00000000#, 31);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' AND w_d1 = '1' THEN
+      IF enb = '1' AND w_d1 = '1' THEN
         w_d2 <= w_waddr_signed;
       END IF;
     END IF;
@@ -232,14 +232,14 @@ BEGIN
     IF reset = '1' THEN
       downsample_bypass_reg <= to_signed(16#00000000#, 31);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_1 = '1' THEN
+      IF enb_1_2048_1 = '1' THEN
         downsample_bypass_reg <= w_out;
       END IF;
     END IF;
   END PROCESS downsample_bypass_process;
 
   
-  Out_tmp <= w_out WHEN enb_1_4194304_1 = '1' ELSE
+  Out_tmp <= w_out WHEN enb_1_2048_1 = '1' ELSE
       downsample_bypass_reg;
 
   Out_rsvd <= std_logic_vector(Out_tmp);

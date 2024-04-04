@@ -12,18 +12,17 @@
 -- Module: applyComplexGains
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing/applyComplexGains
 -- Hierarchy Level: 2
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.std_logic_1164.ALL;
 USE IEEE.numeric_std.ALL;
+USE work.fftAnalysisSynthesis_pkg.ALL;
 
 ENTITY applyComplexGains IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
         fftData_re                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         fftData_im                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -40,14 +39,10 @@ END applyComplexGains;
 
 ARCHITECTURE rtl OF applyComplexGains IS
 
-  ATTRIBUTE multstyle : string;
-
   -- Component Declarations
   COMPONENT fftFilterCoefficients
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
           filterSelect                    :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
           fftValid                        :   IN    std_logic;
@@ -63,12 +58,10 @@ ARCHITECTURE rtl OF applyComplexGains IS
   -- Signals
   SIGNAL fftData_re_signed                : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL fftData_im_signed                : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Delay_out1_re                    : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Delay_out1_im                    : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Delay_out1_re_1                  : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Delay_out1_im_1                  : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL fftData_re_1                     : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL fftData_im_1                     : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL HwModeRegister_reg               : vector_of_signed31(0 TO 1);  -- sfix31 [2]
   SIGNAL Product_C2ReIm_1_C2ReIm_A        : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Product_C2ReIm_1_C2ReIm_A_1      : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL fftFilterCoefficients_out1_re    : std_logic_vector(15 DOWNTO 0);  -- ufix16
   SIGNAL fftFilterCoefficients_out1_im    : std_logic_vector(15 DOWNTO 0);  -- ufix16
   SIGNAL fftFilterCoefficients_out1_re_signed : signed(15 DOWNTO 0);  -- sfix16_En8
@@ -77,29 +70,27 @@ ARCHITECTURE rtl OF applyComplexGains IS
   SIGNAL Product_mul_temp                 : signed(46 DOWNTO 0);  -- sfix47_En31
   SIGNAL Product_Re_AC                    : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product_Re_AC_1                  : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL HwModeRegister4_reg              : vector_of_signed31(0 TO 1);  -- sfix31 [2]
   SIGNAL Product_C2ReIm_1_C2ReIm_B        : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Product_C2ReIm_1_C2ReIm_B_1      : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product_C2ReIm_2_C2ReIm_B        : signed(15 DOWNTO 0);  -- sfix16_En8
   SIGNAL Product2_mul_temp                : signed(46 DOWNTO 0);  -- sfix47_En31
   SIGNAL Product_Re_BD                    : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product_Re_BD_1                  : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL mulOutput                        : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL HwModeRegister2_reg              : vector_of_signed31(0 TO 1);  -- sfix31 [2]
+  SIGNAL Product_C2ReIm_1_C2ReIm_A_1      : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product1_mul_temp                : signed(46 DOWNTO 0);  -- sfix47_En31
   SIGNAL Product_Im_AD                    : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product_Im_AD_1                  : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL HwModeRegister6_reg              : vector_of_signed31(0 TO 1);  -- sfix31 [2]
+  SIGNAL Product_C2ReIm_1_C2ReIm_B_1      : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product3_mul_temp                : signed(46 DOWNTO 0);  -- sfix47_En31
   SIGNAL Product_Im_BC                    : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL Product_Im_BC_1                  : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL mulOutput_1                      : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL fftValid_1                       : std_logic;
-  SIGNAL fftValid_2                       : std_logic;
-  SIGNAL Delay1_bypass_reg                : std_logic;  -- ufix1
-  SIGNAL Delay1_out1                      : std_logic;
   SIGNAL fftFramePulse_1                  : std_logic;
-  SIGNAL crp_out_delay1_reg               : std_logic_vector(2048 DOWNTO 0);  -- ufix1 [2049]
-  SIGNAL fftFramePulse_2                  : std_logic;
-  SIGNAL Delay2_bypass_reg                : std_logic;  -- ufix1
-  SIGNAL Delay2_out1                      : std_logic;
+
+  ATTRIBUTE multstyle : string;
 
 BEGIN
   -- Output data type is inherited
@@ -117,8 +108,6 @@ BEGIN
   u_fftFilterCoefficients : fftFilterCoefficients
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
               filterSelect => filterSelect,  -- ufix2
               fftValid => fftValid,
@@ -130,49 +119,37 @@ BEGIN
 
   fftData_im_signed <= signed(fftData_im);
 
-  Delay_process : PROCESS (clk, reset)
+  rd_0_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      Delay_out1_re <= to_signed(16#00000000#, 31);
-      Delay_out1_im <= to_signed(16#00000000#, 31);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        Delay_out1_re <= fftData_re_signed;
-        Delay_out1_im <= fftData_im_signed;
-      END IF;
-    END IF;
-  END PROCESS Delay_process;
-
-
-  Delay_out1_re_1 <= Delay_out1_re;
-
-  delayMatch_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Product_C2ReIm_1_C2ReIm_A <= to_signed(16#00000000#, 31);
+      fftData_re_1 <= to_signed(16#00000000#, 31);
+      fftData_im_1 <= to_signed(16#00000000#, 31);
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        Product_C2ReIm_1_C2ReIm_A <= Delay_out1_re_1;
+        fftData_re_1 <= fftData_re_signed;
+        fftData_im_1 <= fftData_im_signed;
       END IF;
     END IF;
-  END PROCESS delayMatch_process;
+  END PROCESS rd_0_process;
 
 
-  reduced_process : PROCESS (clk, reset)
+  HwModeRegister_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      Product_C2ReIm_1_C2ReIm_A_1 <= to_signed(16#00000000#, 31);
+      HwModeRegister_reg <= (OTHERS => to_signed(16#00000000#, 31));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        Product_C2ReIm_1_C2ReIm_A_1 <= Product_C2ReIm_1_C2ReIm_A;
+        HwModeRegister_reg(0) <= fftData_re_1;
+        HwModeRegister_reg(1) <= HwModeRegister_reg(0);
       END IF;
     END IF;
-  END PROCESS reduced_process;
+  END PROCESS HwModeRegister_process;
 
+  Product_C2ReIm_1_C2ReIm_A <= HwModeRegister_reg(1);
 
   fftFilterCoefficients_out1_re_signed <= signed(fftFilterCoefficients_out1_re);
 
-  reduced_1_process : PROCESS (clk, reset)
+  reduced_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
       Product_C2ReIm_2_C2ReIm_A <= to_signed(16#0000#, 16);
@@ -181,10 +158,10 @@ BEGIN
         Product_C2ReIm_2_C2ReIm_A <= fftFilterCoefficients_out1_re_signed;
       END IF;
     END IF;
-  END PROCESS reduced_1_process;
+  END PROCESS reduced_process;
 
 
-  Product_mul_temp <= Product_C2ReIm_1_C2ReIm_A_1 * Product_C2ReIm_2_C2ReIm_A;
+  Product_mul_temp <= Product_C2ReIm_1_C2ReIm_A * Product_C2ReIm_2_C2ReIm_A;
   Product_Re_AC <= Product_mul_temp(38 DOWNTO 8);
 
   PipelineRegister_process : PROCESS (clk, reset)
@@ -199,35 +176,23 @@ BEGIN
   END PROCESS PipelineRegister_process;
 
 
-  Delay_out1_im_1 <= Delay_out1_im;
-
-  delayMatch1_process : PROCESS (clk, reset)
+  HwModeRegister4_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      Product_C2ReIm_1_C2ReIm_B <= to_signed(16#00000000#, 31);
+      HwModeRegister4_reg <= (OTHERS => to_signed(16#00000000#, 31));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        Product_C2ReIm_1_C2ReIm_B <= Delay_out1_im_1;
+        HwModeRegister4_reg(0) <= fftData_im_1;
+        HwModeRegister4_reg(1) <= HwModeRegister4_reg(0);
       END IF;
     END IF;
-  END PROCESS delayMatch1_process;
+  END PROCESS HwModeRegister4_process;
 
-
-  reduced_2_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Product_C2ReIm_1_C2ReIm_B_1 <= to_signed(16#00000000#, 31);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        Product_C2ReIm_1_C2ReIm_B_1 <= Product_C2ReIm_1_C2ReIm_B;
-      END IF;
-    END IF;
-  END PROCESS reduced_2_process;
-
+  Product_C2ReIm_1_C2ReIm_B <= HwModeRegister4_reg(1);
 
   fftFilterCoefficients_out1_im_signed <= signed(fftFilterCoefficients_out1_im);
 
-  reduced_3_process : PROCESS (clk, reset)
+  reduced_1_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
       Product_C2ReIm_2_C2ReIm_B <= to_signed(16#0000#, 16);
@@ -236,10 +201,10 @@ BEGIN
         Product_C2ReIm_2_C2ReIm_B <= fftFilterCoefficients_out1_im_signed;
       END IF;
     END IF;
-  END PROCESS reduced_3_process;
+  END PROCESS reduced_1_process;
 
 
-  Product2_mul_temp <= Product_C2ReIm_1_C2ReIm_B_1 * Product_C2ReIm_2_C2ReIm_B;
+  Product2_mul_temp <= Product_C2ReIm_1_C2ReIm_B * Product_C2ReIm_2_C2ReIm_B;
   Product_Re_BD <= Product2_mul_temp(38 DOWNTO 8);
 
   PipelineRegister2_process : PROCESS (clk, reset)
@@ -258,6 +223,20 @@ BEGIN
 
   fftModifiedData_re <= std_logic_vector(mulOutput);
 
+  HwModeRegister2_process : PROCESS (clk, reset)
+  BEGIN
+    IF reset = '1' THEN
+      HwModeRegister2_reg <= (OTHERS => to_signed(16#00000000#, 31));
+    ELSIF rising_edge(clk) THEN
+      IF enb = '1' THEN
+        HwModeRegister2_reg(0) <= fftData_re_1;
+        HwModeRegister2_reg(1) <= HwModeRegister2_reg(0);
+      END IF;
+    END IF;
+  END PROCESS HwModeRegister2_process;
+
+  Product_C2ReIm_1_C2ReIm_A_1 <= HwModeRegister2_reg(1);
+
   Product1_mul_temp <= Product_C2ReIm_1_C2ReIm_A_1 * Product_C2ReIm_2_C2ReIm_B;
   Product_Im_AD <= Product1_mul_temp(38 DOWNTO 8);
 
@@ -272,6 +251,20 @@ BEGIN
     END IF;
   END PROCESS PipelineRegister1_process;
 
+
+  HwModeRegister6_process : PROCESS (clk, reset)
+  BEGIN
+    IF reset = '1' THEN
+      HwModeRegister6_reg <= (OTHERS => to_signed(16#00000000#, 31));
+    ELSIF rising_edge(clk) THEN
+      IF enb = '1' THEN
+        HwModeRegister6_reg(0) <= fftData_im_1;
+        HwModeRegister6_reg(1) <= HwModeRegister6_reg(0);
+      END IF;
+    END IF;
+  END PROCESS HwModeRegister6_process;
+
+  Product_C2ReIm_1_C2ReIm_B_1 <= HwModeRegister6_reg(1);
 
   Product3_mul_temp <= Product_C2ReIm_1_C2ReIm_B_1 * Product_C2ReIm_2_C2ReIm_A;
   Product_Im_BC <= Product3_mul_temp(38 DOWNTO 8);
@@ -292,69 +285,21 @@ BEGIN
 
   fftModifiedData_im <= std_logic_vector(mulOutput_1);
 
-  fftValid_1 <= fftValid;
-
-  crp_out_delay_process : PROCESS (clk, reset)
+  rd_5_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      fftValid_2 <= '0';
+      fftFramePulse_1 <= '0';
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        fftValid_2 <= fftValid_1;
+        fftFramePulse_1 <= fftFramePulse;
       END IF;
     END IF;
-  END PROCESS crp_out_delay_process;
+  END PROCESS rd_5_process;
 
 
-  Delay1_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Delay1_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        Delay1_bypass_reg <= fftValid_2;
-      END IF;
-    END IF;
-  END PROCESS Delay1_bypass_process;
+  fftValidOut <= fftValid;
 
-  
-  Delay1_out1 <= fftValid_2 WHEN enb_1_2048_1 = '1' ELSE
-      Delay1_bypass_reg;
-
-  fftFramePulse_1 <= fftFramePulse;
-
-  crp_out_delay1_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      crp_out_delay1_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        crp_out_delay1_reg(0) <= fftFramePulse_1;
-        crp_out_delay1_reg(2048 DOWNTO 1) <= crp_out_delay1_reg(2047 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS crp_out_delay1_process;
-
-  fftFramePulse_2 <= crp_out_delay1_reg(2048);
-
-  Delay2_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Delay2_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        Delay2_bypass_reg <= fftFramePulse_2;
-      END IF;
-    END IF;
-  END PROCESS Delay2_bypass_process;
-
-  
-  Delay2_out1 <= fftFramePulse_2 WHEN enb_1_2048_1 = '1' ELSE
-      Delay2_bypass_reg;
-
-  fftValidOut <= Delay1_out1;
-
-  fftFramePulseOut <= Delay2_out1;
+  fftFramePulseOut <= fftFramePulse_1;
 
 END rtl;
 

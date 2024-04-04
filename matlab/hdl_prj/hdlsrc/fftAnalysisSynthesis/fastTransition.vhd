@@ -12,7 +12,7 @@
 -- Module: fastTransition
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/fastTransition
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -23,8 +23,8 @@ ENTITY fastTransition IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
         enb_1_2048_1                      :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
-        enb_1_4194304_0                   :   IN    std_logic;
+        enb_1_2048_0                      :   IN    std_logic;
+        enb_1_1_1                         :   IN    std_logic;
         fftStartPulseSlow                 :   IN    std_logic;
         passthroughSlow                   :   IN    std_logic;  -- ufix1
         filterSelectSlow                  :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
@@ -66,7 +66,7 @@ BEGIN
 
   -- Upsample: Upsample by 2048, Sample offset 0 
   
-  Upsample_muxout <= fftStartPulseSlow WHEN enb_1_4194304_1 = '1' ELSE
+  Upsample_muxout <= fftStartPulseSlow WHEN enb_1_2048_1 = '1' ELSE
       Upsample_zero;
 
   -- Upsample bypass register
@@ -75,40 +75,40 @@ BEGIN
     IF reset = '1' THEN
       Upsample_bypass_reg <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
+      IF enb_1_1_1 = '1' THEN
         Upsample_bypass_reg <= Upsample_muxout;
       END IF;
     END IF;
   END PROCESS Upsample_bypass_process;
 
   
-  Upsample_bypassout <= Upsample_muxout WHEN enb_1_2048_1 = '1' ELSE
+  Upsample_bypassout <= Upsample_muxout WHEN enb_1_1_1 = '1' ELSE
       Upsample_bypass_reg;
 
-  Rate_Transition1_process : PROCESS (clk, reset)
+  Rate_Transition11_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
       passthroughSlow_1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         passthroughSlow_1 <= passthroughSlow;
       END IF;
     END IF;
-  END PROCESS Rate_Transition1_process;
+  END PROCESS Rate_Transition11_process;
 
 
   filterSelectSlow_unsigned <= unsigned(filterSelectSlow);
 
-  Rate_Transition2_process : PROCESS (clk, reset)
+  Rate_Transition21_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
       filterSelectSlow_1 <= to_unsigned(16#0#, 2);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         filterSelectSlow_1 <= filterSelectSlow_unsigned;
       END IF;
     END IF;
-  END PROCESS Rate_Transition2_process;
+  END PROCESS Rate_Transition21_process;
 
 
   filterSelectFast <= std_logic_vector(filterSelectSlow_1);

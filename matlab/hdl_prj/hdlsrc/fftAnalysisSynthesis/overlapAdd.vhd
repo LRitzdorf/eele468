@@ -12,7 +12,7 @@
 -- Module: overlapAdd
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis/overlapAdd
 -- Hierarchy Level: 2
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -23,12 +23,11 @@ USE work.fftAnalysisSynthesis_pkg.ALL;
 ENTITY overlapAdd IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
-        enb_1_4194304_0                   :   IN    std_logic;
-        enb_1_4194304_4097                :   IN    std_logic;
+        enb_1_2048_1                      :   IN    std_logic;
+        enb_1_2048_0                      :   IN    std_logic;
+        enb_1_1_1                         :   IN    std_logic;
+        enb_1_2048_7                      :   IN    std_logic;
         iFFTData                          :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         iFFTValid                         :   IN    std_logic;
         fftFramePulse                     :   IN    std_logic;
@@ -43,7 +42,10 @@ ARCHITECTURE rtl OF overlapAdd IS
 
   -- Component Declarations
   COMPONENT fifoWriteSelect
-    PORT( fifoCounter                     :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
+    PORT( clk                             :   IN    std_logic;
+          reset                           :   IN    std_logic;
+          enb                             :   IN    std_logic;
+          fifoCounter                     :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
           validSignal                     :   IN    std_logic;
           valid1                          :   OUT   std_logic;
           valid2                          :   OUT   std_logic;
@@ -55,7 +57,7 @@ ARCHITECTURE rtl OF overlapAdd IS
   COMPONENT fifoStateMachine1
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           valid                           :   IN    std_logic;
           pop                             :   OUT   std_logic
           );
@@ -64,9 +66,9 @@ ARCHITECTURE rtl OF overlapAdd IS
   COMPONENT FIFO1
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           enb_1_2048_1                    :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           In_rsvd                         :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           Push                            :   IN    std_logic;
           Pop                             :   IN    std_logic;
@@ -77,9 +79,9 @@ ARCHITECTURE rtl OF overlapAdd IS
   COMPONENT FIFO2
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           enb_1_2048_1                    :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           In_rsvd                         :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           Push                            :   IN    std_logic;
           Pop                             :   IN    std_logic;
@@ -90,9 +92,9 @@ ARCHITECTURE rtl OF overlapAdd IS
   COMPONENT FIFO3
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           enb_1_2048_1                    :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           In_rsvd                         :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           Push                            :   IN    std_logic;
           Pop                             :   IN    std_logic;
@@ -103,9 +105,9 @@ ARCHITECTURE rtl OF overlapAdd IS
   COMPONENT FIFO4
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           enb_1_2048_1                    :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           In_rsvd                         :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           Push                            :   IN    std_logic;
           Pop                             :   IN    std_logic;
@@ -179,39 +181,23 @@ ARCHITECTURE rtl OF overlapAdd IS
      to_unsigned(16#0026D7#, 24), to_unsigned(16#0009B7#, 24));  -- ufix24 [128]
 
   -- Signals
-  SIGNAL iFFTData_1                       : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL iFFTData_signed                  : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL HwModeRegister_reg               : vector_of_signed31(0 TO 1);  -- sfix31 [2]
-  SIGNAL iFFTData_2                       : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL stateControl                     : std_logic;
-  SIGNAL delayMatch13_reg                 : std_logic_vector(2 DOWNTO 0);  -- ufix1 [3]
+  SIGNAL iFFTData_1                       : signed(30 DOWNTO 0);  -- sfix31_En23
   SIGNAL stateControl_1                   : std_logic;
-  SIGNAL iFFTValid_1                      : std_logic;
+  SIGNAL delayMatch4_reg                  : std_logic_vector(5 DOWNTO 0);  -- ufix1 [6]
+  SIGNAL stateControl_2                   : std_logic;
   SIGNAL Bitwise_Operator_out1            : std_logic;
-  SIGNAL rd_6_reg                         : std_logic_vector(2 DOWNTO 0);  -- ufix1 [3]
-  SIGNAL Bitwise_Operator_out1_1          : std_logic;
-  SIGNAL rd_4_reg                         : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
-  SIGNAL iFFTValid_2                      : std_logic;
   SIGNAL count_step                       : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_from                       : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_reset                      : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL hanningIndex_out1                : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count                            : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_1                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL need_to_wrap                     : std_logic;
-  SIGNAL need_to_wrap_1                   : std_logic;
   SIGNAL count_value                      : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_value_1                    : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL hanningIndex_out1_1              : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL rd_7_reg                         : vector_of_unsigned8(0 TO 1);  -- ufix8 [2]
-  SIGNAL hanningIndex_out1_2              : unsigned(7 DOWNTO 0);  -- uint8
+  SIGNAL count_1                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_2                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_3                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_4                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_5                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL hanningIndex_bypass_reg          : unsigned(7 DOWNTO 0);  -- ufix8
-  SIGNAL hanningIndex_out1_3              : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL hanningIndex_out1_last_value     : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL hanningIndex_out1_4              : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL hanningROM_index                 : signed(31 DOWNTO 0);  -- int32
   SIGNAL hanningROM_out1                  : unsigned(23 DOWNTO 0);  -- ufix24_En22
   SIGNAL hanningROM_out1_1                : unsigned(23 DOWNTO 0) := to_unsigned(16#000000#, 24);  -- ufix24_En22
@@ -220,78 +206,40 @@ ARCHITECTURE rtl OF overlapAdd IS
   SIGNAL Product_mul_temp                 : signed(55 DOWNTO 0);  -- sfix56_En45
   SIGNAL Product_cast_1                   : signed(54 DOWNTO 0);  -- sfix55_En45
   SIGNAL Product_out1                     : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL delayMatch11_reg                 : vector_of_signed31(0 TO 4087);  -- sfix31 [4088]
   SIGNAL Product_out1_1                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL Product_out1_2                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL delayMatch4_reg                  : vector_of_signed31(0 TO 4092);  -- sfix31 [4093]
-  SIGNAL Product_out1_3                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL stateControl_3                   : std_logic;
-  SIGNAL delayMatch12_reg                 : std_logic_vector(2 DOWNTO 0);  -- ufix1 [3]
-  SIGNAL stateControl_4                   : std_logic;
   SIGNAL frameCounter_ctrl_const_out      : std_logic;
-  SIGNAL frameCounter_ctrl_const_out_1    : std_logic;
-  SIGNAL frameCounter_ctrl_delay_bypass_reg : std_logic;  -- ufix1
   SIGNAL frameCounter_ctrl_delay_out      : std_logic;
-  SIGNAL frameCounter_ctrl_delay_out_1    : std_logic;
-  SIGNAL frameCounter_ctrl_delay_out_last_value : std_logic;
-  SIGNAL frameCounter_ctrl_delay_out_2    : std_logic;
   SIGNAL frameCounter_Initial_Val_out     : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL rd_0_reg                         : std_logic_vector(2048 DOWNTO 0);  -- ufix1 [2049]
-  SIGNAL fftFramePulse_1                  : std_logic;
   SIGNAL count_step_1                     : unsigned(1 DOWNTO 0);  -- ufix2
   SIGNAL frameCounter_out1                : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL count_6                          : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL count_7                          : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL frameCounter_out1_1              : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL count_8                          : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL count_9                          : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL frameCounter_bypass_reg          : unsigned(1 DOWNTO 0);  -- ufix2
+  SIGNAL count_4                          : unsigned(1 DOWNTO 0);  -- ufix2
+  SIGNAL count_5                          : unsigned(1 DOWNTO 0);  -- ufix2
   SIGNAL frameCounter_out                 : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL frameCounter_out_1               : unsigned(1 DOWNTO 0);  -- ufix2
   SIGNAL valid1                           : std_logic;
   SIGNAL valid2                           : std_logic;
   SIGNAL valid3                           : std_logic;
   SIGNAL valid4                           : std_logic;
+  SIGNAL delayMatch6_reg                  : std_logic_vector(4089 DOWNTO 0);  -- ufix1 [4090]
   SIGNAL valid1_1                         : std_logic;
-  SIGNAL delayMatch5_reg                  : std_logic_vector(4093 DOWNTO 0);  -- ufix1 [4094]
-  SIGNAL valid1_2                         : std_logic;
-  SIGNAL fifoStateMachine11_bypass_reg    : std_logic;  -- ufix1
-  SIGNAL valid1_3                         : std_logic;
   SIGNAL pop                              : std_logic;
   SIGNAL Rate_Transition4_ds_out          : std_logic;
   SIGNAL Rate_Transition4_out1            : std_logic;
   SIGNAL Rate_Transition4_out1_1          : std_logic;
-  SIGNAL Product_out1_4                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL delayMatch6_reg                  : vector_of_signed31(0 TO 4092);  -- sfix31 [4093]
-  SIGNAL Product_out1_5                   : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL delayMatch7_reg                  : std_logic_vector(4089 DOWNTO 0);  -- ufix1 [4090]
   SIGNAL valid2_1                         : std_logic;
-  SIGNAL delayMatch7_reg                  : std_logic_vector(4093 DOWNTO 0);  -- ufix1 [4094]
-  SIGNAL valid2_2                         : std_logic;
-  SIGNAL fifoStateMachine21_bypass_reg    : std_logic;  -- ufix1
-  SIGNAL valid2_3                         : std_logic;
   SIGNAL fifoStateMachine2_out1           : std_logic;
   SIGNAL Rate_Transition1_ds_out          : std_logic;
   SIGNAL Rate_Transition1_out1            : std_logic;
   SIGNAL Rate_Transition1_out1_1          : std_logic;
-  SIGNAL Product_out1_6                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL delayMatch8_reg                  : vector_of_signed31(0 TO 4092);  -- sfix31 [4093]
-  SIGNAL Product_out1_7                   : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL delayMatch8_reg                  : std_logic_vector(4089 DOWNTO 0);  -- ufix1 [4090]
   SIGNAL valid3_1                         : std_logic;
-  SIGNAL delayMatch9_reg                  : std_logic_vector(4093 DOWNTO 0);  -- ufix1 [4094]
-  SIGNAL valid3_2                         : std_logic;
-  SIGNAL fifoStateMachine31_bypass_reg    : std_logic;  -- ufix1
-  SIGNAL valid3_3                         : std_logic;
   SIGNAL fifoStateMachine3_out1           : std_logic;
   SIGNAL Rate_Transition2_ds_out          : std_logic;
   SIGNAL Rate_Transition2_out1            : std_logic;
   SIGNAL Rate_Transition2_out1_1          : std_logic;
-  SIGNAL Product_out1_8                   : signed(30 DOWNTO 0);  -- sfix31_En23
-  SIGNAL delayMatch10_reg                 : vector_of_signed31(0 TO 4092);  -- sfix31 [4093]
-  SIGNAL Product_out1_9                   : signed(30 DOWNTO 0);  -- sfix31_En23
+  SIGNAL delayMatch9_reg                  : std_logic_vector(4089 DOWNTO 0);  -- ufix1 [4090]
   SIGNAL valid4_1                         : std_logic;
-  SIGNAL delayMatch11_reg                 : std_logic_vector(4093 DOWNTO 0);  -- ufix1 [4094]
-  SIGNAL valid4_2                         : std_logic;
-  SIGNAL fifoStateMachine41_bypass_reg    : std_logic;  -- ufix1
-  SIGNAL valid4_3                         : std_logic;
   SIGNAL fifoStateMachine4_out1           : std_logic;
   SIGNAL Rate_Transition3_ds_out          : std_logic;
   SIGNAL Rate_Transition3_out1            : std_logic;
@@ -315,8 +263,11 @@ ARCHITECTURE rtl OF overlapAdd IS
 
 BEGIN
   u_fifoWriteSelect : fifoWriteSelect
-    PORT MAP( fifoCounter => std_logic_vector(frameCounter_out1),  -- ufix2
-              validSignal => iFFTValid_1,
+    PORT MAP( clk => clk,
+              reset => reset,
+              enb => enb,
+              fifoCounter => std_logic_vector(frameCounter_out1),  -- ufix2
+              validSignal => iFFTValid,
               valid1 => valid1,
               valid2 => valid2,
               valid3 => valid3,
@@ -326,43 +277,43 @@ BEGIN
   u_fifoStateMachine1 : fifoStateMachine1
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              valid => valid1_3,
+              enb => enb,
+              valid => valid1,
               pop => pop
               );
 
   u_fifoStateMachine2 : fifoStateMachine1
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              valid => valid2_3,
+              enb => enb,
+              valid => valid2,
               pop => fifoStateMachine2_out1
               );
 
   u_fifoStateMachine3 : fifoStateMachine1
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              valid => valid3_3,
+              enb => enb,
+              valid => valid3,
               pop => fifoStateMachine3_out1
               );
 
   u_fifoStateMachine4 : fifoStateMachine1
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              valid => valid4_3,
+              enb => enb,
+              valid => valid4,
               pop => fifoStateMachine4_out1
               );
 
   u_FIFO1 : FIFO1
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               enb_1_2048_1 => enb_1_2048_1,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              In_rsvd => std_logic_vector(Product_out1_3),  -- sfix31_En23
-              Push => valid1_2,
+              enb_1_1_1 => enb_1_1_1,
+              In_rsvd => std_logic_vector(Product_out1_1),  -- sfix31_En23
+              Push => valid1_1,
               Pop => Rate_Transition4_out1_1,
               Out_rsvd => FIFO1_out1  -- sfix31_En23
               );
@@ -370,11 +321,11 @@ BEGIN
   u_FIFO2 : FIFO2
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               enb_1_2048_1 => enb_1_2048_1,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              In_rsvd => std_logic_vector(Product_out1_5),  -- sfix31_En23
-              Push => valid2_2,
+              enb_1_1_1 => enb_1_1_1,
+              In_rsvd => std_logic_vector(Product_out1_1),  -- sfix31_En23
+              Push => valid2_1,
               Pop => Rate_Transition1_out1_1,
               Out_rsvd => FIFO2_out1  -- sfix31_En23
               );
@@ -382,11 +333,11 @@ BEGIN
   u_FIFO3 : FIFO3
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               enb_1_2048_1 => enb_1_2048_1,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              In_rsvd => std_logic_vector(Product_out1_7),  -- sfix31_En23
-              Push => valid3_2,
+              enb_1_1_1 => enb_1_1_1,
+              In_rsvd => std_logic_vector(Product_out1_1),  -- sfix31_En23
+              Push => valid3_1,
               Pop => Rate_Transition2_out1_1,
               Out_rsvd => FIFO3_out1  -- sfix31_En23
               );
@@ -394,16 +345,16 @@ BEGIN
   u_FIFO4 : FIFO4
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               enb_1_2048_1 => enb_1_2048_1,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              In_rsvd => std_logic_vector(Product_out1_9),  -- sfix31_En23
-              Push => valid4_2,
+              enb_1_1_1 => enb_1_1_1,
+              In_rsvd => std_logic_vector(Product_out1_1),  -- sfix31_En23
+              Push => valid4_1,
               Pop => Rate_Transition3_out1_1,
               Out_rsvd => FIFO4_out1  -- sfix31_En23
               );
 
-  iFFTData_1 <= signed(iFFTData);
+  iFFTData_signed <= signed(iFFTData);
 
   HwModeRegister_process : PROCESS (clk, reset)
   BEGIN
@@ -411,61 +362,31 @@ BEGIN
       HwModeRegister_reg <= (OTHERS => to_signed(16#00000000#, 31));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        HwModeRegister_reg(0) <= iFFTData_1;
+        HwModeRegister_reg(0) <= iFFTData_signed;
         HwModeRegister_reg(1) <= HwModeRegister_reg(0);
       END IF;
     END IF;
   END PROCESS HwModeRegister_process;
 
-  iFFTData_2 <= HwModeRegister_reg(1);
+  iFFTData_1 <= HwModeRegister_reg(1);
 
-  stateControl <= '1';
+  stateControl_1 <= '1';
 
-  delayMatch13_process : PROCESS (clk, reset)
+  delayMatch4_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      delayMatch13_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch13_reg(0) <= stateControl;
-        delayMatch13_reg(2 DOWNTO 1) <= delayMatch13_reg(1 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch13_process;
-
-  stateControl_1 <= delayMatch13_reg(2);
-
-  iFFTValid_1 <= iFFTValid;
-
-  Bitwise_Operator_out1 <=  NOT iFFTValid_1;
-
-  rd_6_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_6_reg <= (OTHERS => '0');
+      delayMatch4_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        rd_6_reg(0) <= Bitwise_Operator_out1;
-        rd_6_reg(2 DOWNTO 1) <= rd_6_reg(1 DOWNTO 0);
+        delayMatch4_reg(0) <= stateControl_1;
+        delayMatch4_reg(5 DOWNTO 1) <= delayMatch4_reg(4 DOWNTO 0);
       END IF;
     END IF;
-  END PROCESS rd_6_process;
+  END PROCESS delayMatch4_process;
 
-  Bitwise_Operator_out1_1 <= rd_6_reg(2);
+  stateControl_2 <= delayMatch4_reg(5);
 
-  rd_4_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_4_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        rd_4_reg(0) <= iFFTValid_1;
-        rd_4_reg(1) <= rd_4_reg(0);
-      END IF;
-    END IF;
-  END PROCESS rd_4_process;
-
-  iFFTValid_2 <= rd_4_reg(1);
+  Bitwise_Operator_out1 <=  NOT iFFTValid;
 
   -- Count limited, Unsigned Counter
   --  initial value   = 0
@@ -479,134 +400,41 @@ BEGIN
 
   count <= hanningIndex_out1 + count_step;
 
-  rd_10_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_1 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_1 <= count;
-      END IF;
-    END IF;
-  END PROCESS rd_10_process;
-
-
   
   need_to_wrap <= '1' WHEN hanningIndex_out1 = to_unsigned(16#80#, 8) ELSE
       '0';
 
-  rd_9_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      need_to_wrap_1 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        need_to_wrap_1 <= need_to_wrap;
-      END IF;
-    END IF;
-  END PROCESS rd_9_process;
-
-
   
-  count_value <= count_1 WHEN need_to_wrap_1 = '0' ELSE
+  count_value <= count WHEN need_to_wrap = '0' ELSE
       count_from;
 
-  rd_11_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_value_1 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_value_1 <= count_value;
-      END IF;
-    END IF;
-  END PROCESS rd_11_process;
-
-
-  hanningIndex_out1 <= hanningIndex_out1_1;
-
-  rd_7_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_7_reg <= (OTHERS => to_unsigned(16#00#, 8));
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        rd_7_reg(0) <= hanningIndex_out1;
-        rd_7_reg(1) <= rd_7_reg(0);
-      END IF;
-    END IF;
-  END PROCESS rd_7_process;
-
-  hanningIndex_out1_2 <= rd_7_reg(1);
+  
+  count_1 <= hanningIndex_out1 WHEN iFFTValid = '0' ELSE
+      count_value;
 
   
-  count_2 <= hanningIndex_out1_2 WHEN iFFTValid_2 = '0' ELSE
-      count_value_1;
-
-  rd_12_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_3 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_3 <= count_2;
-      END IF;
-    END IF;
-  END PROCESS rd_12_process;
-
-
-  
-  count_4 <= count_3 WHEN Bitwise_Operator_out1_1 = '0' ELSE
+  count_2 <= count_1 WHEN Bitwise_Operator_out1 = '0' ELSE
       count_reset;
 
-  crp_out_delay2_process : PROCESS (clk, reset)
+  
+  count_3 <= hanningIndex_out1 WHEN stateControl_2 = '0' ELSE
+      count_2;
+
+  hanningIndex_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      count_5 <= to_unsigned(16#00#, 8);
+      hanningIndex_out1 <= to_unsigned(16#00#, 8);
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        count_5 <= count_4;
+        hanningIndex_out1 <= count_3;
       END IF;
     END IF;
-  END PROCESS crp_out_delay2_process;
-
-
-  hanningIndex_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      hanningIndex_bypass_reg <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        hanningIndex_bypass_reg <= count_5;
-      END IF;
-    END IF;
-  END PROCESS hanningIndex_bypass_process;
-
-  
-  hanningIndex_out1_3 <= count_5 WHEN enb_1_2048_1 = '1' ELSE
-      hanningIndex_bypass_reg;
-
-  out0_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      hanningIndex_out1_last_value <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        hanningIndex_out1_last_value <= hanningIndex_out1_1;
-      END IF;
-    END IF;
-  END PROCESS out0_bypass_process;
+  END PROCESS hanningIndex_process;
 
 
   
-  hanningIndex_out1_1 <= hanningIndex_out1_last_value WHEN stateControl_1 = '0' ELSE
-      hanningIndex_out1_3;
-
-  hanningIndex_out1_4 <= hanningIndex_out1_1;
-
-  
-  hanningROM_index <= to_signed(16#0000007F#, 32) WHEN hanningIndex_out1_4 > to_unsigned(16#0000007F#, 8) ELSE
-      signed(resize(hanningIndex_out1_4, 32));
+  hanningROM_index <= to_signed(16#0000007F#, 32) WHEN hanningIndex_out1 > to_unsigned(16#0000007F#, 8) ELSE
+      signed(resize(hanningIndex_out1, 32));
   hanningROM_out1 <= hanningROM_table_data(to_integer(hanningROM_index));
 
   PipelineRegister_process : PROCESS (clk)
@@ -632,235 +460,80 @@ BEGIN
 
 
   Product_cast <= signed(resize(hanningROM_out1_2, 25));
-  Product_mul_temp <= iFFTData_2 * Product_cast;
+  Product_mul_temp <= iFFTData_1 * Product_cast;
   Product_cast_1 <= Product_mul_temp(54 DOWNTO 0);
   Product_out1 <= Product_cast_1(52 DOWNTO 22);
 
-  PipelineRegister1_process : PROCESS (clk, reset)
+  delayMatch11_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      Product_out1_1 <= to_signed(16#00000000#, 31);
+      delayMatch11_reg <= (OTHERS => to_signed(16#00000000#, 31));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        Product_out1_1 <= Product_out1;
+        delayMatch11_reg(0) <= Product_out1;
+        delayMatch11_reg(1 TO 4087) <= delayMatch11_reg(0 TO 4086);
       END IF;
     END IF;
-  END PROCESS PipelineRegister1_process;
+  END PROCESS delayMatch11_process;
 
-
-  FIFO11_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Product_out1_2 <= to_signed(16#00000000#, 31);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        Product_out1_2 <= Product_out1_1;
-      END IF;
-    END IF;
-  END PROCESS FIFO11_output_process;
-
-
-  delayMatch4_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch4_reg <= (OTHERS => to_signed(16#00000000#, 31));
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch4_reg(0) <= Product_out1_2;
-        delayMatch4_reg(1 TO 4092) <= delayMatch4_reg(0 TO 4091);
-      END IF;
-    END IF;
-  END PROCESS delayMatch4_process;
-
-  Product_out1_3 <= delayMatch4_reg(4092);
-
-  stateControl_3 <= '1';
-
-  delayMatch12_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch12_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch12_reg(0) <= stateControl_3;
-        delayMatch12_reg(2 DOWNTO 1) <= delayMatch12_reg(1 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch12_process;
-
-  stateControl_4 <= delayMatch12_reg(2);
+  Product_out1_1 <= delayMatch11_reg(4087);
 
   frameCounter_ctrl_const_out <= '1';
 
-  crp_out_delay_process : PROCESS (clk, reset)
+  frameCounter_ctrl_delay_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      frameCounter_ctrl_const_out_1 <= '0';
+      frameCounter_ctrl_delay_out <= '0';
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        frameCounter_ctrl_const_out_1 <= frameCounter_ctrl_const_out;
+        frameCounter_ctrl_delay_out <= frameCounter_ctrl_const_out;
       END IF;
     END IF;
-  END PROCESS crp_out_delay_process;
+  END PROCESS frameCounter_ctrl_delay_process;
 
-
-  frameCounter_ctrl_delay_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      frameCounter_ctrl_delay_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        frameCounter_ctrl_delay_bypass_reg <= frameCounter_ctrl_const_out_1;
-      END IF;
-    END IF;
-  END PROCESS frameCounter_ctrl_delay_bypass_process;
-
-  
-  frameCounter_ctrl_delay_out <= frameCounter_ctrl_const_out_1 WHEN enb_1_2048_1 = '1' ELSE
-      frameCounter_ctrl_delay_bypass_reg;
-
-  out0_bypass1_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      frameCounter_ctrl_delay_out_last_value <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        frameCounter_ctrl_delay_out_last_value <= frameCounter_ctrl_delay_out_1;
-      END IF;
-    END IF;
-  END PROCESS out0_bypass1_process;
-
-
-  
-  frameCounter_ctrl_delay_out_1 <= frameCounter_ctrl_delay_out_last_value WHEN stateControl_4 = '0' ELSE
-      frameCounter_ctrl_delay_out;
-
-  frameCounter_ctrl_delay_out_2 <= frameCounter_ctrl_delay_out_1;
 
   frameCounter_Initial_Val_out <= to_unsigned(16#2#, 2);
-
-  rd_0_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_0_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        rd_0_reg(0) <= fftFramePulse;
-        rd_0_reg(2048 DOWNTO 1) <= rd_0_reg(2047 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS rd_0_process;
-
-  fftFramePulse_1 <= rd_0_reg(2048);
 
   -- Free running, Unsigned Counter
   --  initial value   = 2
   --  step value      = 1
   count_step_1 <= to_unsigned(16#1#, 2);
 
-  count_6 <= frameCounter_out1 + count_step_1;
+  count_4 <= frameCounter_out1 + count_step_1;
 
-  rd_2_process : PROCESS (clk, reset)
+  
+  count_5 <= frameCounter_out1 WHEN fftFramePulse = '0' ELSE
+      count_4;
+
+  frameCounter_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      count_7 <= to_unsigned(16#0#, 2);
+      frameCounter_out <= to_unsigned(16#0#, 2);
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        count_7 <= count_6;
+        frameCounter_out <= count_5;
       END IF;
     END IF;
-  END PROCESS rd_2_process;
+  END PROCESS frameCounter_process;
 
 
-  rd_1_process : PROCESS (clk, reset)
+  
+  frameCounter_out1 <= frameCounter_Initial_Val_out WHEN frameCounter_ctrl_delay_out = '0' ELSE
+      frameCounter_out;
+
+  delayMatch6_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      frameCounter_out1_1 <= to_unsigned(16#0#, 2);
+      delayMatch6_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        frameCounter_out1_1 <= frameCounter_out1;
+        delayMatch6_reg(0) <= valid1;
+        delayMatch6_reg(4089 DOWNTO 1) <= delayMatch6_reg(4088 DOWNTO 0);
       END IF;
     END IF;
-  END PROCESS rd_1_process;
+  END PROCESS delayMatch6_process;
 
-
-  
-  count_8 <= frameCounter_out1_1 WHEN fftFramePulse_1 = '0' ELSE
-      count_7;
-
-  crp_out_delay1_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_9 <= to_unsigned(16#0#, 2);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_9 <= count_8;
-      END IF;
-    END IF;
-  END PROCESS crp_out_delay1_process;
-
-
-  frameCounter_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      frameCounter_bypass_reg <= to_unsigned(16#0#, 2);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        frameCounter_bypass_reg <= count_9;
-      END IF;
-    END IF;
-  END PROCESS frameCounter_bypass_process;
-
-  
-  frameCounter_out <= count_9 WHEN enb_1_2048_1 = '1' ELSE
-      frameCounter_bypass_reg;
-
-  frameCounter_out_1 <= frameCounter_out;
-
-  
-  frameCounter_out1 <= frameCounter_Initial_Val_out WHEN frameCounter_ctrl_delay_out_2 = '0' ELSE
-      frameCounter_out_1;
-
-  FIFO12_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      valid1_1 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        valid1_1 <= valid1;
-      END IF;
-    END IF;
-  END PROCESS FIFO12_output_process;
-
-
-  delayMatch5_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch5_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch5_reg(0) <= valid1_1;
-        delayMatch5_reg(4093 DOWNTO 1) <= delayMatch5_reg(4092 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch5_process;
-
-  valid1_2 <= delayMatch5_reg(4093);
-
-  fifoStateMachine11_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fifoStateMachine11_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        fifoStateMachine11_bypass_reg <= valid1;
-      END IF;
-    END IF;
-  END PROCESS fifoStateMachine11_bypass_process;
-
-  
-  valid1_3 <= valid1 WHEN enb_1_2048_1 = '1' ELSE
-      fifoStateMachine11_bypass_reg;
+  valid1_1 <= delayMatch6_reg(4089);
 
   -- Downsample register
   Rate_Transition4_ds_process : PROCESS (clk, reset)
@@ -868,7 +541,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition4_ds_out <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_4097 = '1' THEN
+      IF enb_1_2048_7 = '1' THEN
         Rate_Transition4_ds_out <= pop;
       END IF;
     END IF;
@@ -881,7 +554,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition4_out1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition4_out1 <= Rate_Transition4_ds_out;
       END IF;
     END IF;
@@ -893,49 +566,11 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition4_out1_1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition4_out1_1 <= Rate_Transition4_out1;
       END IF;
     END IF;
   END PROCESS PipelineRegister4_process;
-
-
-  FIFO21_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Product_out1_4 <= to_signed(16#00000000#, 31);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        Product_out1_4 <= Product_out1_1;
-      END IF;
-    END IF;
-  END PROCESS FIFO21_output_process;
-
-
-  delayMatch6_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch6_reg <= (OTHERS => to_signed(16#00000000#, 31));
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch6_reg(0) <= Product_out1_4;
-        delayMatch6_reg(1 TO 4092) <= delayMatch6_reg(0 TO 4091);
-      END IF;
-    END IF;
-  END PROCESS delayMatch6_process;
-
-  Product_out1_5 <= delayMatch6_reg(4092);
-
-  FIFO22_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      valid2_1 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        valid2_1 <= valid2;
-      END IF;
-    END IF;
-  END PROCESS FIFO22_output_process;
 
 
   delayMatch7_process : PROCESS (clk, reset)
@@ -943,29 +578,14 @@ BEGIN
     IF reset = '1' THEN
       delayMatch7_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch7_reg(0) <= valid2_1;
-        delayMatch7_reg(4093 DOWNTO 1) <= delayMatch7_reg(4092 DOWNTO 0);
+      IF enb = '1' THEN
+        delayMatch7_reg(0) <= valid2;
+        delayMatch7_reg(4089 DOWNTO 1) <= delayMatch7_reg(4088 DOWNTO 0);
       END IF;
     END IF;
   END PROCESS delayMatch7_process;
 
-  valid2_2 <= delayMatch7_reg(4093);
-
-  fifoStateMachine21_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fifoStateMachine21_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        fifoStateMachine21_bypass_reg <= valid2;
-      END IF;
-    END IF;
-  END PROCESS fifoStateMachine21_bypass_process;
-
-  
-  valid2_3 <= valid2 WHEN enb_1_2048_1 = '1' ELSE
-      fifoStateMachine21_bypass_reg;
+  valid2_1 <= delayMatch7_reg(4089);
 
   -- Downsample register
   Rate_Transition1_ds_process : PROCESS (clk, reset)
@@ -973,7 +593,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition1_ds_out <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_4097 = '1' THEN
+      IF enb_1_2048_7 = '1' THEN
         Rate_Transition1_ds_out <= fifoStateMachine2_out1;
       END IF;
     END IF;
@@ -986,7 +606,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition1_out1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition1_out1 <= Rate_Transition1_ds_out;
       END IF;
     END IF;
@@ -998,79 +618,26 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition1_out1_1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition1_out1_1 <= Rate_Transition1_out1;
       END IF;
     END IF;
   END PROCESS PipelineRegister5_process;
 
 
-  FIFO31_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      Product_out1_6 <= to_signed(16#00000000#, 31);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        Product_out1_6 <= Product_out1_1;
-      END IF;
-    END IF;
-  END PROCESS FIFO31_output_process;
-
-
   delayMatch8_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      delayMatch8_reg <= (OTHERS => to_signed(16#00000000#, 31));
+      delayMatch8_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch8_reg(0) <= Product_out1_6;
-        delayMatch8_reg(1 TO 4092) <= delayMatch8_reg(0 TO 4091);
+      IF enb = '1' THEN
+        delayMatch8_reg(0) <= valid3;
+        delayMatch8_reg(4089 DOWNTO 1) <= delayMatch8_reg(4088 DOWNTO 0);
       END IF;
     END IF;
   END PROCESS delayMatch8_process;
 
-  Product_out1_7 <= delayMatch8_reg(4092);
-
-  FIFO32_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      valid3_1 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        valid3_1 <= valid3;
-      END IF;
-    END IF;
-  END PROCESS FIFO32_output_process;
-
-
-  delayMatch9_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch9_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch9_reg(0) <= valid3_1;
-        delayMatch9_reg(4093 DOWNTO 1) <= delayMatch9_reg(4092 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch9_process;
-
-  valid3_2 <= delayMatch9_reg(4093);
-
-  fifoStateMachine31_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fifoStateMachine31_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        fifoStateMachine31_bypass_reg <= valid3;
-      END IF;
-    END IF;
-  END PROCESS fifoStateMachine31_bypass_process;
-
-  
-  valid3_3 <= valid3 WHEN enb_1_2048_1 = '1' ELSE
-      fifoStateMachine31_bypass_reg;
+  valid3_1 <= delayMatch8_reg(4089);
 
   -- Downsample register
   Rate_Transition2_ds_process : PROCESS (clk, reset)
@@ -1078,7 +645,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition2_ds_out <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_4097 = '1' THEN
+      IF enb_1_2048_7 = '1' THEN
         Rate_Transition2_ds_out <= fifoStateMachine3_out1;
       END IF;
     END IF;
@@ -1091,7 +658,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition2_out1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition2_out1 <= Rate_Transition2_ds_out;
       END IF;
     END IF;
@@ -1103,79 +670,26 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition2_out1_1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition2_out1_1 <= Rate_Transition2_out1;
       END IF;
     END IF;
   END PROCESS PipelineRegister2_process;
 
 
-  FIFO41_output_process : PROCESS (clk, reset)
+  delayMatch9_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      Product_out1_8 <= to_signed(16#00000000#, 31);
+      delayMatch9_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        Product_out1_8 <= Product_out1_1;
+      IF enb = '1' THEN
+        delayMatch9_reg(0) <= valid4;
+        delayMatch9_reg(4089 DOWNTO 1) <= delayMatch9_reg(4088 DOWNTO 0);
       END IF;
     END IF;
-  END PROCESS FIFO41_output_process;
+  END PROCESS delayMatch9_process;
 
-
-  delayMatch10_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch10_reg <= (OTHERS => to_signed(16#00000000#, 31));
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch10_reg(0) <= Product_out1_8;
-        delayMatch10_reg(1 TO 4092) <= delayMatch10_reg(0 TO 4091);
-      END IF;
-    END IF;
-  END PROCESS delayMatch10_process;
-
-  Product_out1_9 <= delayMatch10_reg(4092);
-
-  FIFO42_output_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      valid4_1 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        valid4_1 <= valid4;
-      END IF;
-    END IF;
-  END PROCESS FIFO42_output_process;
-
-
-  delayMatch11_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch11_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch11_reg(0) <= valid4_1;
-        delayMatch11_reg(4093 DOWNTO 1) <= delayMatch11_reg(4092 DOWNTO 0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch11_process;
-
-  valid4_2 <= delayMatch11_reg(4093);
-
-  fifoStateMachine41_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fifoStateMachine41_bypass_reg <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        fifoStateMachine41_bypass_reg <= valid4;
-      END IF;
-    END IF;
-  END PROCESS fifoStateMachine41_bypass_process;
-
-  
-  valid4_3 <= valid4 WHEN enb_1_2048_1 = '1' ELSE
-      fifoStateMachine41_bypass_reg;
+  valid4_1 <= delayMatch9_reg(4089);
 
   -- Downsample register
   Rate_Transition3_ds_process : PROCESS (clk, reset)
@@ -1183,7 +697,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition3_ds_out <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_4097 = '1' THEN
+      IF enb_1_2048_7 = '1' THEN
         Rate_Transition3_ds_out <= fifoStateMachine4_out1;
       END IF;
     END IF;
@@ -1196,7 +710,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition3_out1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition3_out1 <= Rate_Transition3_ds_out;
       END IF;
     END IF;
@@ -1208,7 +722,7 @@ BEGIN
     IF reset = '1' THEN
       Rate_Transition3_out1_1 <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         Rate_Transition3_out1_1 <= Rate_Transition3_out1;
       END IF;
     END IF;

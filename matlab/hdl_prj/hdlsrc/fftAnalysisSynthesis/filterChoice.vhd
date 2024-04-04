@@ -12,12 +12,13 @@
 -- Module: filterChoice
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing/applyComplexGains/fftFilterCoefficients/filterChoice
 -- Hierarchy Level: 4
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.std_logic_1164.ALL;
 USE IEEE.numeric_std.ALL;
+USE work.fftAnalysisSynthesis_pkg.ALL;
 
 ENTITY filterChoice IS
   PORT( clk                               :   IN    std_logic;
@@ -94,6 +95,7 @@ ARCHITECTURE rtl OF filterChoice IS
 
   -- Signals
   SIGNAL filterSelect_unsigned            : unsigned(1 DOWNTO 0);  -- ufix2
+  SIGNAL delayMatch1_reg                  : vector_of_unsigned2(0 TO 3);  -- ufix2 [4]
   SIGNAL filterSelect_1                   : unsigned(1 DOWNTO 0);  -- ufix2
   SIGNAL filter1Coefficients_out1_re      : std_logic_vector(15 DOWNTO 0);  -- ufix16
   SIGNAL filter1Coefficients_out1_im      : std_logic_vector(15 DOWNTO 0);  -- ufix16
@@ -157,17 +159,19 @@ BEGIN
 
   filterSelect_unsigned <= unsigned(filterSelect);
 
-  delayMatch_process : PROCESS (clk, reset)
+  delayMatch1_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      filterSelect_1 <= to_unsigned(16#0#, 2);
+      delayMatch1_reg <= (OTHERS => to_unsigned(16#0#, 2));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        filterSelect_1 <= filterSelect_unsigned;
+        delayMatch1_reg(0) <= filterSelect_unsigned;
+        delayMatch1_reg(1 TO 3) <= delayMatch1_reg(0 TO 2);
       END IF;
     END IF;
-  END PROCESS delayMatch_process;
+  END PROCESS delayMatch1_process;
 
+  filterSelect_1 <= delayMatch1_reg(3);
 
   filter1Coefficients_out1_re_signed <= signed(filter1Coefficients_out1_re);
 

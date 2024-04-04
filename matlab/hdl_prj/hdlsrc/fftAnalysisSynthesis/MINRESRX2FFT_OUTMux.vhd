@@ -12,7 +12,7 @@
 -- Module: MINRESRX2FFT_OUTMux
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/FFT/MINRESRX2FFT_OUTMux
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,7 +22,7 @@ USE IEEE.numeric_std.ALL;
 ENTITY MINRESRX2FFT_OUTMux IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         rdEnb1                            :   IN    std_logic;
         rdEnb2                            :   IN    std_logic;
         rdEnb3                            :   IN    std_logic;
@@ -80,7 +80,7 @@ BEGIN
       minResRX2FFTOutMux_rdEnb2Dly <= '0';
       minResRX2FFTOutMux_rdEnb3Dly <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         minResRX2FFTOutMux_doutReg_re <= minResRX2FFTOutMux_doutReg_re_next;
         minResRX2FFTOutMux_doutReg_im <= minResRX2FFTOutMux_doutReg_im_next;
         minResRX2FFTOutMux_doutReg_vld <= minResRX2FFTOutMux_doutReg_vld_next;

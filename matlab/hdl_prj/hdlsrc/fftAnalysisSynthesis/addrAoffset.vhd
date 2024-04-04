@@ -12,7 +12,7 @@
 -- Module: addrAoffset
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/addrAoffset
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;

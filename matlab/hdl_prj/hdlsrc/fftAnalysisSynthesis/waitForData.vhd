@@ -12,7 +12,7 @@
 -- Module: waitForData
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/fftPulseGen/waitForData
 -- Hierarchy Level: 4
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -24,7 +24,7 @@ ENTITY waitForData IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
         enb                               :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
+        enb_1_2048_1                      :   IN    std_logic;
         framePulse                        :   IN    std_logic;
         fftFramePulse                     :   OUT   std_logic
         );
@@ -186,14 +186,14 @@ BEGIN
     IF reset = '1' THEN
       initialFrameCount_bypass_reg <= to_unsigned(16#00#, 5);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_1 = '1' THEN
+      IF enb_1_2048_1 = '1' THEN
         initialFrameCount_bypass_reg <= count_3;
       END IF;
     END IF;
   END PROCESS initialFrameCount_bypass_process;
 
   
-  initialFrameCount_out1_2 <= count_3 WHEN enb_1_4194304_1 = '1' ELSE
+  initialFrameCount_out1_2 <= count_3 WHEN enb_1_2048_1 = '1' ELSE
       initialFrameCount_bypass_reg;
 
   initialFrameCount_out1 <= initialFrameCount_out1_2;
@@ -211,14 +211,14 @@ BEGIN
     IF reset = '1' THEN
       t_bypass_reg <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_1 = '1' THEN
+      IF enb_1_2048_1 = '1' THEN
         t_bypass_reg <= Logical_Operator1_out1;
       END IF;
     END IF;
   END PROCESS t_bypass_process;
 
   
-  Logical_Operator1_out1_1 <= Logical_Operator1_out1 WHEN enb_1_4194304_1 = '1' ELSE
+  Logical_Operator1_out1_1 <= Logical_Operator1_out1 WHEN enb_1_2048_1 = '1' ELSE
       t_bypass_reg;
 
   fftFramePulse <= Logical_Operator1_out1_1;

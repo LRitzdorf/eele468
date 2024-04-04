@@ -12,19 +12,16 @@
 -- Module: fftFilterCoefficients
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing/applyComplexGains/fftFilterCoefficients
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
 USE IEEE.std_logic_1164.ALL;
 USE IEEE.numeric_std.ALL;
-USE work.fftAnalysisSynthesis_pkg.ALL;
 
 ENTITY fftFilterCoefficients IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
         filterSelect                      :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
         fftValid                          :   IN    std_logic;
@@ -36,14 +33,10 @@ END fftFilterCoefficients;
 
 ARCHITECTURE rtl OF fftFilterCoefficients IS
 
-  ATTRIBUTE multstyle : string;
-
   -- Component Declarations
   COMPONENT fftROMindexing
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
           fftValid                        :   IN    std_logic;
           ROMindex                        :   OUT   std_logic_vector(8 DOWNTO 0);  -- sfix9
@@ -71,12 +64,8 @@ ARCHITECTURE rtl OF fftFilterCoefficients IS
     USE ENTITY work.filterChoice(rtl);
 
   -- Signals
-  SIGNAL filterSelect_1                   : unsigned(1 DOWNTO 0);  -- ufix2
   SIGNAL fftROMindexing_out1              : std_logic_vector(8 DOWNTO 0);  -- ufix9
   SIGNAL fftROMindexing_out2              : std_logic;
-  SIGNAL delayMatch_reg                   : vector_of_unsigned2(0 TO 2047);  -- ufix2 [2048]
-  SIGNAL filterSelect_2                   : unsigned(1 DOWNTO 0);  -- ufix2
-  SIGNAL fftROMindexing_out1_1            : std_logic_vector(8 DOWNTO 0);  -- ufix9
   SIGNAL filterChoice_out1_re             : std_logic_vector(15 DOWNTO 0);  -- ufix16
   SIGNAL filterChoice_out1_im             : std_logic_vector(15 DOWNTO 0);  -- ufix16
 
@@ -84,8 +73,6 @@ BEGIN
   u_fftROMindexing : fftROMindexing
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
               fftValid => fftValid,
               ROMindex => fftROMindexing_out1,  -- sfix9
@@ -96,30 +83,12 @@ BEGIN
     PORT MAP( clk => clk,
               reset => reset,
               enb => enb,
-              filterSelect => std_logic_vector(filterSelect_2),  -- ufix2
-              ROMindex => fftROMindexing_out1_1,  -- sfix9
+              filterSelect => filterSelect,  -- ufix2
+              ROMindex => fftROMindexing_out1,  -- sfix9
               conjugate => fftROMindexing_out2,
               filterCoefficients_re => filterChoice_out1_re,  -- sfix16_En8
               filterCoefficients_im => filterChoice_out1_im  -- sfix16_En8
               );
-
-  filterSelect_1 <= unsigned(filterSelect);
-
-  delayMatch_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      delayMatch_reg <= (OTHERS => to_unsigned(16#0#, 2));
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        delayMatch_reg(0) <= filterSelect_1;
-        delayMatch_reg(1 TO 2047) <= delayMatch_reg(0 TO 2046);
-      END IF;
-    END IF;
-  END PROCESS delayMatch_process;
-
-  filterSelect_2 <= delayMatch_reg(2047);
-
-  fftROMindexing_out1_1 <= std_logic_vector(signed(fftROMindexing_out1));
 
   filterCoefficients_re <= filterChoice_out1_re;
 

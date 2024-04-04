@@ -12,7 +12,7 @@
 -- Module: fftFrameBuffering
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering
 -- Hierarchy Level: 2
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -23,11 +23,10 @@ USE work.fftAnalysisSynthesis_pkg.ALL;
 ENTITY fftFrameBuffering IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
-        enb_1_4194304_0                   :   IN    std_logic;
+        enb_1_2048_1                      :   IN    std_logic;
+        enb_1_2048_0                      :   IN    std_logic;
+        enb_1_1_1                         :   IN    std_logic;
         audioIn                           :   IN    std_logic_vector(23 DOWNTO 0);  -- sfix24_En23
         passthrough                       :   IN    std_logic;  -- ufix1
         filterSelect                      :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
@@ -55,7 +54,7 @@ ARCHITECTURE rtl OF fftFrameBuffering IS
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
           enb                             :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
+          enb_1_2048_1                    :   IN    std_logic;
           counter                         :   IN    std_logic_vector(7 DOWNTO 0);  -- uint8
           fftStartPulse                   :   OUT   std_logic
           );
@@ -65,8 +64,8 @@ ARCHITECTURE rtl OF fftFrameBuffering IS
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
           enb_1_2048_1                    :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
-          enb_1_4194304_0                 :   IN    std_logic;
+          enb_1_2048_0                    :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           fftStartPulseSlow               :   IN    std_logic;
           passthroughSlow                 :   IN    std_logic;  -- ufix1
           filterSelectSlow                :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
@@ -79,8 +78,6 @@ ARCHITECTURE rtl OF fftFrameBuffering IS
   COMPONENT addrBgen
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
           fftStart                        :   IN    std_logic;
           addrB                           :   OUT   std_logic_vector(7 DOWNTO 0);  -- uint8
@@ -94,8 +91,8 @@ ARCHITECTURE rtl OF fftFrameBuffering IS
              DataWidth                    : integer
              );
     PORT( clk                             :   IN    std_logic;
+          enb                             :   IN    std_logic;
           enb_1_2048_0                    :   IN    std_logic;
-          enb_1_4194304_0                 :   IN    std_logic;
           din_A                           :   IN    std_logic_vector(DataWidth - 1 DOWNTO 0);  -- generic width
           addr_A                          :   IN    std_logic_vector(AddrWidth - 1 DOWNTO 0);  -- generic width
           we_A                            :   IN    std_logic;
@@ -191,10 +188,10 @@ ARCHITECTURE rtl OF fftFrameBuffering IS
   SIGNAL Always_Read_B_out1               : std_logic;
   SIGNAL dpRAM_out1                       : std_logic_vector(23 DOWNTO 0);  -- ufix24
   SIGNAL dpRAM_out2                       : std_logic_vector(23 DOWNTO 0);  -- ufix24
-  SIGNAL dpRAM_out2_1                     : signed(23 DOWNTO 0);  -- sfix24_En23
+  SIGNAL dpRAM_out2_signed                : signed(23 DOWNTO 0);  -- sfix24_En23
   SIGNAL HwModeRegister_reg               : vector_of_signed24(0 TO 1);  -- sfix24 [2]
-  SIGNAL dpRAM_out2_2                     : signed(23 DOWNTO 0);  -- sfix24_En23
-  SIGNAL addrBgen_out2_1                  : unsigned(7 DOWNTO 0);  -- uint8
+  SIGNAL dpRAM_out2_1                     : signed(23 DOWNTO 0);  -- sfix24_En23
+  SIGNAL addrBgen_out2_unsigned           : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL hanningROM_index                 : signed(31 DOWNTO 0);  -- int32
   SIGNAL hanningROM_out1                  : unsigned(23 DOWNTO 0);  -- ufix24_En22
   SIGNAL hanningROM_out1_1                : unsigned(23 DOWNTO 0) := to_unsigned(16#000000#, 24);  -- ufix24_En22
@@ -204,8 +201,6 @@ ARCHITECTURE rtl OF fftFrameBuffering IS
   SIGNAL Product_cast_1                   : signed(47 DOWNTO 0);  -- sfix48_En45
   SIGNAL Product_out1                     : signed(23 DOWNTO 0);  -- sfix24_En23
   SIGNAL Product_out1_1                   : signed(23 DOWNTO 0);  -- sfix24_En23
-  SIGNAL t_bypass_reg                     : signed(23 DOWNTO 0);  -- sfix24
-  SIGNAL Product_out1_2                   : signed(23 DOWNTO 0);  -- sfix24_En23
 
 BEGIN
   -- When a FFT frame pulse
@@ -264,7 +259,7 @@ BEGIN
     PORT MAP( clk => clk,
               reset => reset,
               enb => enb,
-              enb_1_4194304_1 => enb_1_4194304_1,
+              enb_1_2048_1 => enb_1_2048_1,
               counter => std_logic_vector(counterA_out1),  -- uint8
               fftStartPulse => fftPulseGen_out1
               );
@@ -273,8 +268,8 @@ BEGIN
     PORT MAP( clk => clk,
               reset => reset,
               enb_1_2048_1 => enb_1_2048_1,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              enb_1_4194304_0 => enb_1_4194304_0,
+              enb_1_2048_0 => enb_1_2048_0,
+              enb_1_1_1 => enb_1_1_1,
               fftStartPulseSlow => fftPulseGen_out1,
               passthroughSlow => passthrough,  -- ufix1
               filterSelectSlow => filterSelect,  -- ufix2
@@ -286,8 +281,6 @@ BEGIN
   u_addrBgen : addrBgen
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
               fftStart => fastTransition_out1,
               addrB => addrBgen_out1,  -- uint8
@@ -300,8 +293,8 @@ BEGIN
                  DataWidth => 24
                  )
     PORT MAP( clk => clk,
+              enb => enb,
               enb_1_2048_0 => enb_1_2048_0,
-              enb_1_4194304_0 => enb_1_4194304_0,
               din_A => audioIn,
               addr_A => addrAoffset_out1,
               we_A => Always_Write_A_out1,
@@ -359,14 +352,14 @@ BEGIN
     IF reset = '1' THEN
       counterA_bypass_reg <= to_unsigned(16#00#, 8);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_1 = '1' THEN
+      IF enb_1_2048_1 = '1' THEN
         counterA_bypass_reg <= count_1;
       END IF;
     END IF;
   END PROCESS counterA_bypass_process;
 
   
-  counterA_out1 <= count_1 WHEN enb_1_4194304_1 = '1' ELSE
+  counterA_out1 <= count_1 WHEN enb_1_2048_1 = '1' ELSE
       counterA_bypass_reg;
 
   Always_Write_A_out1 <= '1';
@@ -375,7 +368,7 @@ BEGIN
 
   Always_Read_B_out1 <= '0';
 
-  dpRAM_out2_1 <= signed(dpRAM_out2);
+  dpRAM_out2_signed <= signed(dpRAM_out2);
 
   HwModeRegister_process : PROCESS (clk, reset)
   BEGIN
@@ -383,19 +376,19 @@ BEGIN
       HwModeRegister_reg <= (OTHERS => to_signed(16#000000#, 24));
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        HwModeRegister_reg(0) <= dpRAM_out2_1;
+        HwModeRegister_reg(0) <= dpRAM_out2_signed;
         HwModeRegister_reg(1) <= HwModeRegister_reg(0);
       END IF;
     END IF;
   END PROCESS HwModeRegister_process;
 
-  dpRAM_out2_2 <= HwModeRegister_reg(1);
+  dpRAM_out2_1 <= HwModeRegister_reg(1);
 
-  addrBgen_out2_1 <= unsigned(addrBgen_out2);
+  addrBgen_out2_unsigned <= unsigned(addrBgen_out2);
 
   
-  hanningROM_index <= to_signed(16#0000007F#, 32) WHEN addrBgen_out2_1 > to_unsigned(16#0000007F#, 8) ELSE
-      signed(resize(addrBgen_out2_1, 32));
+  hanningROM_index <= to_signed(16#0000007F#, 32) WHEN addrBgen_out2_unsigned > to_unsigned(16#0000007F#, 8) ELSE
+      signed(resize(addrBgen_out2_unsigned, 32));
   hanningROM_out1 <= hanningROM_table_data(to_integer(hanningROM_index));
 
   PipelineRegister_process : PROCESS (clk)
@@ -421,7 +414,7 @@ BEGIN
 
 
   Product_cast <= signed(resize(hanningROM_out1_2, 25));
-  Product_mul_temp <= dpRAM_out2_2 * Product_cast;
+  Product_mul_temp <= dpRAM_out2_1 * Product_cast;
   Product_cast_1 <= Product_mul_temp(47 DOWNTO 0);
   Product_out1 <= Product_cast_1(45 DOWNTO 22);
 
@@ -437,22 +430,7 @@ BEGIN
   END PROCESS PipelineRegister1_process;
 
 
-  t_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      t_bypass_reg <= to_signed(16#000000#, 24);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        t_bypass_reg <= Product_out1_1;
-      END IF;
-    END IF;
-  END PROCESS t_bypass_process;
-
-  
-  Product_out1_2 <= Product_out1_1 WHEN enb_1_2048_1 = '1' ELSE
-      t_bypass_reg;
-
-  fftData <= std_logic_vector(Product_out1_2);
+  fftData <= std_logic_vector(Product_out1_1);
 
   fftDataValid <= fftValid;
 

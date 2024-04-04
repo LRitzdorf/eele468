@@ -12,7 +12,7 @@
 -- Module: fftPulseGen
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/fftPulseGen
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -23,7 +23,7 @@ ENTITY fftPulseGen IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
         enb                               :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
+        enb_1_2048_1                      :   IN    std_logic;
         counter                           :   IN    std_logic_vector(7 DOWNTO 0);  -- uint8
         fftStartPulse                     :   OUT   std_logic
         );
@@ -43,7 +43,7 @@ ARCHITECTURE rtl OF fftPulseGen IS
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
           enb                             :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
+          enb_1_2048_1                    :   IN    std_logic;
           framePulse                      :   IN    std_logic;
           fftFramePulse                   :   OUT   std_logic
           );
@@ -73,7 +73,7 @@ BEGIN
     PORT MAP( clk => clk,
               reset => reset,
               enb => enb,
-              enb_1_4194304_1 => enb_1_4194304_1,
+              enb_1_2048_1 => enb_1_2048_1,
               framePulse => fftFramePulseGen_out1,
               fftFramePulse => waitForData_out1
               );

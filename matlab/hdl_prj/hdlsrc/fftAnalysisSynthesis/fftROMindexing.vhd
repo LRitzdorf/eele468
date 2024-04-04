@@ -12,7 +12,7 @@
 -- Module: fftROMindexing
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing/applyComplexGains/fftFilterCoefficients/fftROMindexing
 -- Hierarchy Level: 4
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,8 +22,6 @@ USE IEEE.numeric_std.ALL;
 ENTITY fftROMindexing IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
         fftValid                          :   IN    std_logic;
         ROMindex                          :   OUT   std_logic_vector(8 DOWNTO 0);  -- sfix9
@@ -49,27 +47,16 @@ ARCHITECTURE rtl OF fftROMindexing IS
 
   -- Signals
   SIGNAL stateControl_1                   : std_logic;
-  SIGNAL delayMatch1_reg                  : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
+  SIGNAL delayMatch_reg                   : std_logic_vector(2 DOWNTO 0);  -- ufix1 [3]
   SIGNAL stateControl_2                   : std_logic;
-  SIGNAL fftValid_1                       : std_logic;
   SIGNAL Bitwise_Operator_out1            : std_logic;
-  SIGNAL rd_2_reg                         : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
-  SIGNAL Bitwise_Operator_out1_1          : std_logic;
-  SIGNAL fftValid_2                       : std_logic;
   SIGNAL count_step                       : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_reset                      : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL fftIndexCount_out1               : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count                            : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_1                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCount_out1_1             : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCount_out1_2             : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_2                          : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL count_3                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_4                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL count_5                          : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCount_bypass_reg         : unsigned(7 DOWNTO 0);  -- ufix8
-  SIGNAL fftIndexCount_out1_3             : unsigned(7 DOWNTO 0);  -- uint8
-  SIGNAL fftIndexCount_out1_last_value    : unsigned(7 DOWNTO 0);  -- uint8
   SIGNAL Constant5_out1                   : unsigned(6 DOWNTO 0);  -- ufix7
   SIGNAL Relational_Operator_relop1       : std_logic;
   SIGNAL switch_compare_1                 : std_logic;
@@ -104,49 +91,21 @@ BEGIN
 
   stateControl_1 <= '1';
 
-  delayMatch1_process : PROCESS (clk, reset)
+  delayMatch_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      delayMatch1_reg <= (OTHERS => '0');
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        delayMatch1_reg(0) <= stateControl_1;
-        delayMatch1_reg(1) <= delayMatch1_reg(0);
-      END IF;
-    END IF;
-  END PROCESS delayMatch1_process;
-
-  stateControl_2 <= delayMatch1_reg(1);
-
-  fftValid_1 <= fftValid;
-
-  Bitwise_Operator_out1 <=  NOT fftValid_1;
-
-  rd_2_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      rd_2_reg <= (OTHERS => '0');
+      delayMatch_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        rd_2_reg(0) <= Bitwise_Operator_out1;
-        rd_2_reg(1) <= rd_2_reg(0);
+        delayMatch_reg(0) <= stateControl_1;
+        delayMatch_reg(2 DOWNTO 1) <= delayMatch_reg(1 DOWNTO 0);
       END IF;
     END IF;
-  END PROCESS rd_2_process;
+  END PROCESS delayMatch_process;
 
-  Bitwise_Operator_out1_1 <= rd_2_reg(1);
+  stateControl_2 <= delayMatch_reg(2);
 
-  rd_0_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftValid_2 <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        fftValid_2 <= fftValid_1;
-      END IF;
-    END IF;
-  END PROCESS rd_0_process;
-
+  Bitwise_Operator_out1 <=  NOT fftValid;
 
   -- Free running, Unsigned Counter
   --  initial value   = 0
@@ -157,99 +116,34 @@ BEGIN
 
   count <= fftIndexCount_out1 + count_step;
 
-  rd_4_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_1 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_1 <= count;
-      END IF;
-    END IF;
-  END PROCESS rd_4_process;
-
-
-  fftIndexCount_out1 <= fftIndexCount_out1_1;
-
-  rd_3_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftIndexCount_out1_2 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        fftIndexCount_out1_2 <= fftIndexCount_out1;
-      END IF;
-    END IF;
-  END PROCESS rd_3_process;
-
+  
+  count_1 <= fftIndexCount_out1 WHEN fftValid = '0' ELSE
+      count;
 
   
-  count_2 <= fftIndexCount_out1_2 WHEN fftValid_2 = '0' ELSE
-      count_1;
-
-  rd_5_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      count_3 <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb = '1' THEN
-        count_3 <= count_2;
-      END IF;
-    END IF;
-  END PROCESS rd_5_process;
-
-
-  
-  count_4 <= count_3 WHEN Bitwise_Operator_out1_1 = '0' ELSE
+  count_2 <= count_1 WHEN Bitwise_Operator_out1 = '0' ELSE
       count_reset;
 
-  crp_out_delay_process : PROCESS (clk, reset)
+  
+  count_3 <= fftIndexCount_out1 WHEN stateControl_2 = '0' ELSE
+      count_2;
+
+  fftIndexCount_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      count_5 <= to_unsigned(16#00#, 8);
+      fftIndexCount_out1 <= to_unsigned(16#00#, 8);
     ELSIF rising_edge(clk) THEN
       IF enb = '1' THEN
-        count_5 <= count_4;
+        fftIndexCount_out1 <= count_3;
       END IF;
     END IF;
-  END PROCESS crp_out_delay_process;
+  END PROCESS fftIndexCount_process;
 
-
-  fftIndexCount_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftIndexCount_bypass_reg <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_1 = '1' THEN
-        fftIndexCount_bypass_reg <= count_5;
-      END IF;
-    END IF;
-  END PROCESS fftIndexCount_bypass_process;
-
-  
-  fftIndexCount_out1_3 <= count_5 WHEN enb_1_2048_1 = '1' ELSE
-      fftIndexCount_bypass_reg;
-
-  out0_bypass_process : PROCESS (clk, reset)
-  BEGIN
-    IF reset = '1' THEN
-      fftIndexCount_out1_last_value <= to_unsigned(16#00#, 8);
-    ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        fftIndexCount_out1_last_value <= fftIndexCount_out1_1;
-      END IF;
-    END IF;
-  END PROCESS out0_bypass_process;
-
-
-  
-  fftIndexCount_out1_1 <= fftIndexCount_out1_last_value WHEN stateControl_2 = '0' ELSE
-      fftIndexCount_out1_3;
 
   Constant5_out1 <= to_unsigned(16#41#, 7);
 
   
-  Relational_Operator_relop1 <= '1' WHEN fftIndexCount_out1_1 <= resize(Constant5_out1, 8) ELSE
+  Relational_Operator_relop1 <= '1' WHEN fftIndexCount_out1 <= resize(Constant5_out1, 8) ELSE
       '0';
 
   
@@ -259,10 +153,10 @@ BEGIN
   Constant1_out1 <= to_unsigned(16#82#, 8);
 
   Add_sub_cast <= signed(resize(Constant1_out1, 9));
-  Add_sub_cast_1 <= signed(resize(fftIndexCount_out1_1, 9));
+  Add_sub_cast_1 <= signed(resize(fftIndexCount_out1, 9));
   Add_out1 <= Add_sub_cast - Add_sub_cast_1;
 
-  fftIndexCount_out1_dtc <= signed(resize(fftIndexCount_out1_1, 9));
+  fftIndexCount_out1_dtc <= signed(resize(fftIndexCount_out1, 9));
 
   
   Switch_out1 <= Add_out1 WHEN switch_compare_1 = '0' ELSE

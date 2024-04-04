@@ -12,7 +12,7 @@
 -- Module: filter1Coefficients
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/frequencyDomainProcessing/applyComplexGains/fftFilterCoefficients/filterChoice/filter1Coefficients
 -- Hierarchy Level: 5
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;

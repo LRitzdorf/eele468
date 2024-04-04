@@ -8,9 +8,8 @@
 -- -------------------------------------------------------------
 -- Rate and Clocking Details
 -- -------------------------------------------------------------
--- Model base rate: 4.96705e-12
--- Target subsystem base rate: 4.96705e-12
--- Explicit user oversample request: 2048x
+-- Model base rate: 1.01725e-08
+-- Target subsystem base rate: 1.01725e-08
 -- 
 -- 
 -- Clock Enable  Sample Time
@@ -32,7 +31,7 @@
 -- Module: fftAnalysisSynthesis
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis
 -- Hierarchy Level: 0
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -60,22 +59,20 @@ ARCHITECTURE rtl OF fftAnalysisSynthesis IS
           reset                           :   IN    std_logic;
           clk_enable                      :   IN    std_logic;
           enb                             :   OUT   std_logic;
+          enb_1_1_1                       :   OUT   std_logic;
           enb_1_2048_0                    :   OUT   std_logic;
           enb_1_2048_1                    :   OUT   std_logic;
-          enb_1_4194304_0                 :   OUT   std_logic;
-          enb_1_4194304_1                 :   OUT   std_logic;
-          enb_1_4194304_4097              :   OUT   std_logic
+          enb_1_2048_7                    :   OUT   std_logic
           );
   END COMPONENT;
 
   COMPONENT analysis
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
-          enb_1_4194304_0                 :   IN    std_logic;
+          enb_1_2048_1                    :   IN    std_logic;
+          enb_1_2048_0                    :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
           audioIn                         :   IN    std_logic_vector(23 DOWNTO 0);  -- sfix24_En23
           passthrough                     :   IN    std_logic;  -- ufix1
           filterSelect                    :   IN    std_logic_vector(1 DOWNTO 0);  -- ufix2
@@ -91,8 +88,6 @@ ARCHITECTURE rtl OF fftAnalysisSynthesis IS
   COMPONENT frequencyDomainProcessing
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
           fftData_re                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           fftData_im                      :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
@@ -110,12 +105,11 @@ ARCHITECTURE rtl OF fftAnalysisSynthesis IS
   COMPONENT synthesis
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
-          enb_1_4194304_0                 :   IN    std_logic;
-          enb_1_4194304_4097              :   IN    std_logic;
+          enb_1_2048_1                    :   IN    std_logic;
+          enb_1_2048_0                    :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
+          enb_1_2048_7                    :   IN    std_logic;
           fftModifiedData_re              :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           fftModifiedData_im              :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           fftValid                        :   IN    std_logic;
@@ -138,12 +132,11 @@ ARCHITECTURE rtl OF fftAnalysisSynthesis IS
     USE ENTITY work.synthesis(rtl);
 
   -- Signals
-  SIGNAL enb_1_2048_0                     : std_logic;
-  SIGNAL enb_1_2048_1                     : std_logic;
   SIGNAL enb                              : std_logic;
-  SIGNAL enb_1_4194304_1                  : std_logic;
-  SIGNAL enb_1_4194304_0                  : std_logic;
-  SIGNAL enb_1_4194304_4097               : std_logic;
+  SIGNAL enb_1_2048_1                     : std_logic;
+  SIGNAL enb_1_2048_0                     : std_logic;
+  SIGNAL enb_1_1_1                        : std_logic;
+  SIGNAL enb_1_2048_7                     : std_logic;
   SIGNAL analysis_out1_re                 : std_logic_vector(30 DOWNTO 0);  -- ufix31
   SIGNAL analysis_out1_im                 : std_logic_vector(30 DOWNTO 0);  -- ufix31
   SIGNAL analysis_out2                    : std_logic;
@@ -162,21 +155,19 @@ BEGIN
               reset => reset,
               clk_enable => clk_enable,
               enb => enb,
+              enb_1_1_1 => enb_1_1_1,
               enb_1_2048_0 => enb_1_2048_0,
               enb_1_2048_1 => enb_1_2048_1,
-              enb_1_4194304_0 => enb_1_4194304_0,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              enb_1_4194304_4097 => enb_1_4194304_4097
+              enb_1_2048_7 => enb_1_2048_7
               );
 
   u_analysis : analysis
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              enb_1_4194304_0 => enb_1_4194304_0,
+              enb_1_2048_1 => enb_1_2048_1,
+              enb_1_2048_0 => enb_1_2048_0,
+              enb_1_1_1 => enb_1_1_1,
               audioIn => audioIn,  -- sfix24_En23
               passthrough => passthrough,  -- ufix1
               filterSelect => filterSelect,  -- ufix2
@@ -191,8 +182,6 @@ BEGIN
   u_frequencyDomainProcessing : frequencyDomainProcessing
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
               fftData_re => analysis_out1_re,  -- sfix31_En23
               fftData_im => analysis_out1_im,  -- sfix31_En23
@@ -209,12 +198,11 @@ BEGIN
   u_synthesis : synthesis
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              enb_1_4194304_0 => enb_1_4194304_0,
-              enb_1_4194304_4097 => enb_1_4194304_4097,
+              enb_1_2048_1 => enb_1_2048_1,
+              enb_1_2048_0 => enb_1_2048_0,
+              enb_1_1_1 => enb_1_1_1,
+              enb_1_2048_7 => enb_1_2048_7,
               fftModifiedData_re => frequencyDomainProcessing_out1_re,  -- sfix31_En23
               fftModifiedData_im => frequencyDomainProcessing_out1_im,  -- sfix31_En23
               fftValid => frequencyDomainProcessing_out2,
@@ -222,7 +210,7 @@ BEGIN
               audioOut => synthesis_out1  -- sfix24_En23
               );
 
-  ce_out <= enb_1_4194304_1;
+  ce_out <= enb_1_2048_1;
 
   audioOut <= synthesis_out1;
 

@@ -12,7 +12,7 @@
 -- Module: fifoStateMachine1
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis/overlapAdd/fifoStateMachine1
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,7 +22,7 @@ USE IEEE.numeric_std.ALL;
 ENTITY fifoStateMachine1 IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         valid                             :   IN    std_logic;
         pop                               :   OUT   std_logic
         );
@@ -43,7 +43,7 @@ BEGIN
     IF reset = '1' THEN
       current_state <= to_unsigned(16#0#, 2);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         current_state <= current_state_next;
       END IF;
     END IF;

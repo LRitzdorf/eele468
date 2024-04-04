@@ -12,7 +12,7 @@
 -- Module: synthesis
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis
 -- Hierarchy Level: 1
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -22,12 +22,11 @@ USE IEEE.numeric_std.ALL;
 ENTITY synthesis IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
-        enb_1_2048_1                      :   IN    std_logic;
         enb                               :   IN    std_logic;
-        enb_1_4194304_1                   :   IN    std_logic;
-        enb_1_4194304_0                   :   IN    std_logic;
-        enb_1_4194304_4097                :   IN    std_logic;
+        enb_1_2048_1                      :   IN    std_logic;
+        enb_1_2048_0                      :   IN    std_logic;
+        enb_1_1_1                         :   IN    std_logic;
+        enb_1_2048_7                      :   IN    std_logic;
         fftModifiedData_re                :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         fftModifiedData_im                :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
         fftValid                          :   IN    std_logic;
@@ -45,7 +44,7 @@ ARCHITECTURE rtl OF synthesis IS
   COMPONENT iFFT
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
+          enb                             :   IN    std_logic;
           dataIn_re                       :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           dataIn_im                       :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           validIn                         :   IN    std_logic;
@@ -57,12 +56,11 @@ ARCHITECTURE rtl OF synthesis IS
   COMPONENT overlapAdd
     PORT( clk                             :   IN    std_logic;
           reset                           :   IN    std_logic;
-          enb_1_2048_0                    :   IN    std_logic;
-          enb_1_2048_1                    :   IN    std_logic;
           enb                             :   IN    std_logic;
-          enb_1_4194304_1                 :   IN    std_logic;
-          enb_1_4194304_0                 :   IN    std_logic;
-          enb_1_4194304_4097              :   IN    std_logic;
+          enb_1_2048_1                    :   IN    std_logic;
+          enb_1_2048_0                    :   IN    std_logic;
+          enb_1_1_1                       :   IN    std_logic;
+          enb_1_2048_7                    :   IN    std_logic;
           iFFTData                        :   IN    std_logic_vector(30 DOWNTO 0);  -- sfix31_En23
           iFFTValid                       :   IN    std_logic;
           fftFramePulse                   :   IN    std_logic;
@@ -80,6 +78,7 @@ ARCHITECTURE rtl OF synthesis IS
   -- Signals
   SIGNAL kconst                           : signed(32 DOWNTO 0);  -- sfix33_En32
   SIGNAL kconst_1                         : signed(32 DOWNTO 0);  -- sfix33_En32
+  SIGNAL rd_0_reg                         : std_logic_vector(1 DOWNTO 0);  -- ufix1 [2]
   SIGNAL fftValid_1                       : std_logic;
   SIGNAL iFFT_out1_re                     : std_logic_vector(30 DOWNTO 0);  -- ufix31
   SIGNAL iFFT_out2                        : std_logic;
@@ -99,7 +98,7 @@ BEGIN
   u_iFFT : iFFT
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
+              enb => enb,
               dataIn_re => fftModifiedData_re,  -- sfix31_En23
               dataIn_im => fftModifiedData_im,  -- sfix31_En23
               validIn => fftValid_1,
@@ -110,12 +109,11 @@ BEGIN
   u_overlapAdd : overlapAdd
     PORT MAP( clk => clk,
               reset => reset,
-              enb_1_2048_0 => enb_1_2048_0,
-              enb_1_2048_1 => enb_1_2048_1,
               enb => enb,
-              enb_1_4194304_1 => enb_1_4194304_1,
-              enb_1_4194304_0 => enb_1_4194304_0,
-              enb_1_4194304_4097 => enb_1_4194304_4097,
+              enb_1_2048_1 => enb_1_2048_1,
+              enb_1_2048_0 => enb_1_2048_0,
+              enb_1_1_1 => enb_1_1_1,
+              enb_1_2048_7 => enb_1_2048_7,
               iFFTData => iFFT_out1_re,  -- sfix31_En23
               iFFTValid => iFFT_out2,
               fftFramePulse => fftFramePulse,
@@ -136,17 +134,19 @@ BEGIN
   END PROCESS HwModeRegister_process;
 
 
-  delayMatch_process : PROCESS (clk, reset)
+  rd_0_process : PROCESS (clk, reset)
   BEGIN
     IF reset = '1' THEN
-      fftValid_1 <= '0';
+      rd_0_reg <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
-        fftValid_1 <= fftValid;
+      IF enb = '1' THEN
+        rd_0_reg(0) <= fftValid;
+        rd_0_reg(1) <= rd_0_reg(0);
       END IF;
     END IF;
-  END PROCESS delayMatch_process;
+  END PROCESS rd_0_process;
 
+  fftValid_1 <= rd_0_reg(1);
 
   overlapAdd_out1_1 <= signed(overlapAdd_out1);
 
@@ -183,14 +183,14 @@ BEGIN
     IF reset = '1' THEN
       t_bypass_reg <= to_signed(16#000000#, 24);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_4194304_1 = '1' THEN
+      IF enb_1_2048_1 = '1' THEN
         t_bypass_reg <= Gain_out1_2;
       END IF;
     END IF;
   END PROCESS t_bypass_process;
 
   
-  Gain_out1_3 <= Gain_out1_2 WHEN enb_1_4194304_1 = '1' ELSE
+  Gain_out1_3 <= Gain_out1_2 WHEN enb_1_2048_1 = '1' ELSE
       t_bypass_reg;
 
   audioOut <= std_logic_vector(Gain_out1_3);

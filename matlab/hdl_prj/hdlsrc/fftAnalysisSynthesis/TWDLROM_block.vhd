@@ -12,7 +12,7 @@
 -- Module: TWDLROM_block
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/synthesis/iFFT/TWDLROM
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -23,7 +23,7 @@ USE work.fftAnalysisSynthesis_pkg.ALL;
 ENTITY TWDLROM_block IS
   PORT( clk                               :   IN    std_logic;
         reset                             :   IN    std_logic;
-        enb_1_2048_0                      :   IN    std_logic;
+        enb                               :   IN    std_logic;
         dMemOutDly_vld                    :   IN    std_logic;
         stage                             :   IN    std_logic_vector(2 DOWNTO 0);  -- ufix3
         initIC                            :   IN    std_logic;
@@ -101,7 +101,7 @@ BEGIN
       minResRX2FFTTwdlMapping_cnt <= to_unsigned(16#3F#, 6);
       minResRX2FFTTwdlMapping_maxCnt <= to_unsigned(16#00#, 6);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         minResRX2FFTTwdlMapping_baseAddr <= minResRX2FFTTwdlMapping_baseAddr_next;
         minResRX2FFTTwdlMapping_cnt <= minResRX2FFTTwdlMapping_cnt_next;
         minResRX2FFTTwdlMapping_octantReg1 <= minResRX2FFTTwdlMapping_octantReg1_next;
@@ -231,7 +231,7 @@ BEGIN
     IF reset = '1' THEN
       twiddleReg_re <= to_signed(16#00000000#, 31);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         twiddleReg_re <= twiddleS_re;
       END IF;
     END IF;
@@ -246,7 +246,7 @@ BEGIN
     IF reset = '1' THEN
       twiddleReg_im <= to_signed(16#00000000#, 31);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         twiddleReg_im <= twiddleS_im;
       END IF;
     END IF;
@@ -258,7 +258,7 @@ BEGIN
     IF reset = '1' THEN
       twdlOctantReg <= to_unsigned(16#0#, 3);
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         twdlOctantReg <= twdlOctant;
       END IF;
     END IF;
@@ -270,7 +270,7 @@ BEGIN
     IF reset = '1' THEN
       twdl45Reg <= '0';
     ELSIF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         twdl45Reg <= twdl45;
       END IF;
     END IF;

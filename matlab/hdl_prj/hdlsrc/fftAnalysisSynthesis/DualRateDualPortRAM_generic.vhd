@@ -12,7 +12,7 @@
 -- Module: DualRateDualPortRAM_generic
 -- Source Path: fftAnalysisSynthesis/fftAnalysisSynthesis/analysis/fftFrameBuffering/DualRateDualPortRAM_generic
 -- Hierarchy Level: 3
--- Model version: 8.2
+-- Model version: 8.3
 -- 
 -- -------------------------------------------------------------
 LIBRARY IEEE;
@@ -24,8 +24,8 @@ ENTITY DualRateDualPortRAM_generic IS
            DataWidth                      : integer := 1
            );
   PORT( clk                               :   IN    std_logic;
+        enb                               :   IN    std_logic;
         enb_1_2048_0                      :   IN    std_logic;
-        enb_1_4194304_0                   :   IN    std_logic;
         din_A                             :   IN    std_logic_vector(DataWidth - 1 DOWNTO 0);  -- generic width
         addr_A                            :   IN    std_logic_vector(AddrWidth - 1 DOWNTO 0);  -- generic width
         we_A                              :   IN    std_logic;  -- ufix1
@@ -58,7 +58,7 @@ BEGIN
   DualRateDualPortRAM_generic_processA: PROCESS (clk)
   BEGIN
     IF rising_edge(clk) THEN
-      IF enb_1_4194304_0 = '1' THEN
+      IF enb_1_2048_0 = '1' THEN
         IF we_A = '1' THEN
           ram(to_integer(addr_A_unsigned)) := din_A;
         END IF;
@@ -70,7 +70,7 @@ BEGIN
   DualRateDualPortRAM_generic_processB: PROCESS (clk)
   BEGIN
     IF rising_edge(clk) THEN
-      IF enb_1_2048_0 = '1' THEN
+      IF enb = '1' THEN
         IF we_B = '1' THEN
           ram(to_integer(addr_B_unsigned)) := din_B;
         END IF;
