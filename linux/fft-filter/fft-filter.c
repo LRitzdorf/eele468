@@ -133,6 +133,10 @@ static ssize_t filter_select_store(struct device *dev,
     if (ret < 0) {
         return ret;
     }
+    if (filter_select >= 4) {
+        // We only have four filter modes
+        return -ERANGE;
+    }
     // Write the resulting value, and return the number of bytes we consumed
     iowrite32(filter_select, priv->base_addr + REG_FILTERSELECT_OFFSET);
     return size;
