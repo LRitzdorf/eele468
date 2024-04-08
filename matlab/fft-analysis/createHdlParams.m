@@ -24,7 +24,7 @@ FPGA_clock_frequency = 98304000;  % Clock frequency in Hz
 % https://www.mathworks.com/help/hdlcoder/ug/oversampling-factor.html
 % https://www.mathworks.com/help/hdlcoder/ug/generating-a-global-oversampling-clock.html
 %--------------------------------------------------------------------------
-oversampling = FPGA_clock_frequency/modelParams.audio.sampleFrequency;
+oversampling = FPGA_clock_frequency/(modelParams.audio.sampleFrequency*2048);
 if mod(oversampling,1) == 0  % check if it is an integer
     hdlParams.clockOversamplingFactor = oversampling;
 else
